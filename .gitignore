@@ -1,0 +1,7 @@
+.env
+private.key
+public.key
+/node_modules
+src/uploads/*
+uploads/*
+.vscode/
