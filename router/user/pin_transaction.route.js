@@ -15,5 +15,14 @@ router.get('/pin/transactions', Auth, (req, res) => {
         })
 });
 
+router.post('/received/payment', (req, res) => {
+    pintTransactionRepo.receviedPayment(req.body)
+        .then(pinTransactions => {
+            res.json(new CommonResponse(code = 200, message = 'Payment Received', data = pinTransactions));
+        }).catch(err => {
+            res.status(400).json(new CommonResponse(code = 400, message= err.message ));
+        })
+});
+
 
 module.exports = router;

@@ -15,8 +15,8 @@ router.get('/pin/transactions', (req, res) => {
         })
 });
 
-router.get('/link/connect/self', (req, res) => {
-    pintTransactionRepo.linkConnectSelf(req.query)
+router.post('/link/connect/self', (req, res) => {
+    pintTransactionRepo.linkConnectSelf(req.body)
         .then(pinTransactions => {
             res.json(new CommonResponse(code = 200, message = 'Link attached', data = pinTransactions));
         }).catch(err => {
@@ -24,8 +24,8 @@ router.get('/link/connect/self', (req, res) => {
         })
 });
 
-router.get('/link/connect/custom', (req, res) => {
-    pintTransactionRepo.linkConnectCustom(req.query)
+router.post('/link/connect/custom', (req, res) => {
+    pintTransactionRepo.linkConnectCustom(req.body)
         .then(pinTransactions => {
             res.json(new CommonResponse(code = 200, message = 'Link attached', data = pinTransactions));
         }).catch(err => {
@@ -33,10 +33,19 @@ router.get('/link/connect/custom', (req, res) => {
         })
 });
 
-router.get('/link/connect/auto', (req, res) => {
-    pintTransactionRepo.linkConnectAuto(req.query)
+router.post('/link/connect/auto', (req, res) => {
+    pintTransactionRepo.linkConnectAuto(req.body)
         .then(pinTransactions => {
             res.json(new CommonResponse(code = 200, message = 'Link attached', data = pinTransactions));
+        }).catch(err => {
+            res.status(400).json(new CommonResponse(code = 400, message= err.message ));
+        })
+});
+
+router.post('/received/payment', (req, res) => {
+    pintTransactionRepo.receviedPayment(req.body)
+        .then(pinTransactions => {
+            res.json(new CommonResponse(code = 200, message = 'Payment Received', data = pinTransactions));
         }).catch(err => {
             res.status(400).json(new CommonResponse(code = 400, message= err.message ));
         })
