@@ -24,4 +24,13 @@ router.post('/common/data', (req, res) => {
         })
 });
 
+router.delete('/common/data/:id', (req, res) => {
+    commonDataRepo.deleteCommonData(req.params.id)
+        .then(data => {
+            res.json(new CommonResponse(code = 200, message = 'delete successfully', data = data));
+        }).catch(err => {
+            res.status(400).json(new CommonResponse(code = 400, message= err.message ));
+        })
+});
+
 module.exports = router;

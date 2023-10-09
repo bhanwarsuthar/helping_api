@@ -7,7 +7,7 @@ const pintTransactionRepo = require('../../repo/user/pin_transaction.repo');
 const { Auth } = require('../../middleware/jwt_auth');
 
 router.get('/pin/transactions', Auth, (req, res) => {
-    pintTransactionRepo.pinTransactions(req.query, req.user)
+    pintTransactionRepo.pinTransactions(req.query)
         .then(pinTransactions => {
             res.json(new CommonResponse(code = 200, message = 'total Pin Transactions list', data = pinTransactions));
         }).catch(err => {

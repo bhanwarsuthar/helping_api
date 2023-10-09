@@ -21,12 +21,21 @@ exports.newOrUpdateKeyValue = async (body) => {
     } else {
         await CommonData.update({
             data: body.data
-        },{
+        }, {
             where: {
                 key: key
             }
         });
         return await CommonData.findOne({ where: { key: key } });
     }
+}
+
+exports.deleteCommonData = async (id) => {
+    var commonData = await CommonData.findOne({ where: { id: id } });
+    if(commonData.key === 'UPI'){
+        throw new ResMessageError('you can not delete this key');
+    }
+    await CommonData.destroy({ where: { id: id } });
+    return commonData;
 }
 

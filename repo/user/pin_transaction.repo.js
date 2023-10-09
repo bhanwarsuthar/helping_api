@@ -1,4 +1,4 @@
-const { Pin, User, AcLedger, PinTransaction, Media, Team, History, sequelize } = require("../../models")
+const { Pin, User, AcLedger, PinTransaction, Media, Team, History, sequelize, Help } = require("../../models")
 const fs = require("fs");
 const { Op, Sequelize, QueryTypes, INTEGER } = require('sequelize');
 const { ResMessageError } = require('../../exceptions/customExceptions');
@@ -6,12 +6,13 @@ const { reject } = require('bluebird');
 const moment = require('moment');
 
 
-exports.pinTransactions = async (query, user) => {
+exports.pinTransactions = async (query) => {
+    const order = JSON.parse(query.order);
+    console.log(order);
+    var whereCondition = order;
     return PinTransaction.paginate(parseInt(query?.limit) || 10, {
         order: [['created_at', 'DESC']],
-        where: {
-            provide_user_id: user.id,
-        },
+        where: whereCondition,
         include: [{
             model: User,
             as: 'provide'
@@ -29,7 +30,7 @@ exports.pinTransactions = async (query, user) => {
 }
 
 exports.receviedPayment = async (body) => {
-    const pinTransactionId = Number(body.id);
+    const pinTransactionId = +body.id;
     const pinTransaction = await PinTransaction.findByPk(pinTransactionId);
     if(!pinTransaction){
         throw new ResMessageError("Transaction not found!")

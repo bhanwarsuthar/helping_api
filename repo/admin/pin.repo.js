@@ -75,8 +75,6 @@ exports.pinDeactive = async (id) => {
 
 exports.createPin = async (data) => {
     try {
-        var date = moment.utc(data.start_time);
-        console.log(date);
         return await Pin.create({
             'title': data.title,
             'pin_amount': data.pin_amount,
@@ -84,7 +82,7 @@ exports.createPin = async (data) => {
             'receive_help_amount': data.receive_help_amount,
             'total_count': data.total_count,
             'temp_count': data.temp_count,
-            'remaining_count': data.remaining_count,
+            'remaining_count': data.temp_count,
             'generate_link_count': data.generate_link_count,
             'start_time': moment.utc(data.start_time).local().format('YYYY-MM-DDTHH:mm:SS.sss'),
             'end_time': moment.utc(data.end_time).local().format('YYYY-MM-DDTHH:mm:SS.sss'),
@@ -98,6 +96,7 @@ exports.createPin = async (data) => {
 
 exports.updatePin = async (data) => {
     var item = await this.singlePin(data.id);
+    var remainingCount = await PinTransaction.count({where: {pin_id : item.id}});
     console.log("item", item)
     item.title = data.title !== undefined ? data.title : item.title;
     item.pin_amount = data.pin_amount !== undefined ? data.pin_amount : item.pin_amount;
@@ -105,10 +104,10 @@ exports.updatePin = async (data) => {
     item.receive_help_amount = data.receive_help_amount !== undefined ? data.receive_help_amount : item.receive_help_amount;
     item.total_count = data.total_count !== undefined ? data.total_count : item.total_count;
     item.temp_count = data.temp_count !== undefined ? data.temp_count : item.temp_count;
-    item.remaining_count = data.remaining_count !== undefined ? data.remaining_count : item.remaining_count;
+    item.remaining_count = Number(data.temp_count) - Number(remainingCount);
     item.generate_link_count = data.generate_link_count !== undefined ? data.generate_link_count : item.generate_link_count;
-    item.start_time = data.start_time !== undefined ? new Date(data.start_time) : item.start_time;
-    item.end_time = data.end_time !== undefined ? new Date(data.end_time) : item.end_time;
+    item.start_time = data.start_time !== undefined ? moment.utc(data.start_time).local().format('YYYY-MM-DDTHH:mm:SS.sss') : item.start_time;
+    item.end_time = data.end_time !== undefined ? moment.utc(data.end_time).local().format('YYYY-MM-DDTHH:mm:SS.sss') : item.end_time;
     item.status = data.status !== undefined ? data.status : item.status;
     await item.save();
     return item;
@@ -119,6 +118,9 @@ exports.preBookingPin = async (body, res) => {
     const mobileNumber = body.mobile;
     const pinId = body.pin_id;
     const quantity = Number(body.quantity);
+    if(quantity ==0){
+        throw new ResMessageError("Invalid Quantity")
+    }
     let pin = await Pin.findByPk(Number(pinId));
     if (!pin) {
         throw new ResMessageError("Pin Not Found")
@@ -137,7 +139,7 @@ exports.preBookingPin = async (body, res) => {
     /**
      * this condition for check pin availablity and user wallet amount
      */
-    if (pin.remaining_count <= Number(quantity)) {
+    if (pin.remaining_count < Number(quantity)) {
         throw new ResMessageError(`${quantity} Quantity not available`)
     }
     if (Number(user.ac_ledgers[0].balance) < (Number(pin.pin_amount) * Number(quantity))) {
