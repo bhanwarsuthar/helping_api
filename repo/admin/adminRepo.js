@@ -1,5 +1,8 @@
 const { Op } = require("sequelize");
-const { AcLedger, PinTransaction, User } = require("../../models");
+const Sequelize = require("sequelize");
+const { AcLedger, PinTransaction, User, Pin } = require("../../models");
+
+const pintTransactionRepo = require("../../repo/admin/pin_transaction.repo");
 
 const getAllUsers = async (req, res) => {
   let { limit, page, key, sortBy } = req.query;
@@ -54,7 +57,7 @@ const getPinTransByUserId = async (req, res) => {
   let { limit = 20, page = 1, status } = req.query;
 
   const filter = { provide_user_id: +id, status };
-  
+
   !status && delete filter.status;
 
   try {
@@ -73,6 +76,53 @@ const getPinTransByUserId = async (req, res) => {
       error: error.message,
     });
   }
+};
+
+// --- //
+
+const getEligibility = async (filter) => {
+  const { count } = await AcLedger.findOne({
+    where: {
+      balance: filter,
+    },
+    attributes: [[Sequelize.fn("COUNT", Sequelize.col("user_id")), "count"]],
+    raw: true,
+  });
+  return count;
+};
+
+const getPinTransaction = async (status) => {
+  const { count } = await PinTransaction.findOne({ where: { status }, attributes: [[Sequelize.fn("COUNT", Sequelize.col("id")), "count"]], raw: true });
+
+  return count;
+};
+
+// --- //
+
+const adminDashboardData = async (req, res) => {
+  const totalBalance = await AcLedger.findOne({ attributes: [[Sequelize.fn("SUM", Sequelize.col("balance")), "sum"]], raw: true });
+
+  const { pin_amount } = await Pin.findOne({
+    where: {
+      status: "active",
+    },
+    order: [["start_time", "DESC"]],
+  });
+
+  res.status(200).json({
+    message: "Admin dashboard data fetched successfully",
+    data: {
+      total_wallet: +totalBalance.sum,
+      pin_amount,
+      pin_eligible: await getEligibility({ [Op.gte]: pin_amount }),
+      pin_not_eligible: await getEligibility({ [Op.lte]: pin_amount }),
+      transactions_status: {
+        success: await getPinTransaction("success"),
+        inprogress: await getPinTransaction("inprogress"),
+        pending: await getPinTransaction("pending"),
+      },
+    },
+  });
 };
 
 // const getUserById = async (req, res) => {
@@ -100,7 +150,7 @@ const getPinTransByUserId = async (req, res) => {
 //   }
 // };
 
-module.exports = { getAllUsers, getPinTransByUserId };
+module.exports = { getAllUsers, getPinTransByUserId, adminDashboardData };
 
 // exports.list = (query) => {
 //   let { limit, page, key, sortBy } = query;

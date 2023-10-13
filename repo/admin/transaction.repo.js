@@ -2,6 +2,7 @@ const { Transactions, User, AcLedger, Media, Team, History, sequelize } = requir
 const fs = require("fs");
 const { Op, Sequelize, QueryTypes, INTEGER } = require("sequelize");
 const { ResMessageError } = require("../../exceptions/customExceptions");
+const { CommonData } = require("../../models");
 
 exports.transactions = (params) => {
   console.log("ssssssssssss", params);
@@ -104,7 +105,49 @@ exports.createTransaction = async (data) => {
 
   var metaUser = JSON.parse(JSON.stringify({ ref_no: "" }));
 
-  var referralUserTransaction = user.ac_ledgers[0].credit(parseInt(data.amount), "admin", metaUser);
+  if (data.type === "credit") {
+    var referralUserTransaction = user.ac_ledgers[0].credit(parseInt(data.amount), "admin", metaUser);
+
+    let level_distro = await CommonData.findOne({
+      where: {
+        key: "level_distro",
+      },
+    });
+
+    level_distro = JSON.parse(level_distro.data);
+
+    let i = 1;
+
+    while (user.sponsor && i < 3) {
+      const nextUser = await User.findOne({
+        where: { referral_code: user.sponsor },
+        include: {
+          model: AcLedger,
+          as: "ac_ledgers",
+          where: { slug: "cash-wallet" },
+        },
+      });
+
+      await AcLedger.increment("balance", {
+        by: (data.amount * level_distro[i]) / 100,
+        where: {
+          user_id: nextUser.id,
+        },
+      });
+
+      user.sponsor = nextUser.sponsor;
+
+      if (!nextUser) {
+        break;
+      }
+
+      i++;
+    }
+  }
+
+  if (data.type === "debit") {
+    var referralUserTransaction = user.ac_ledgers[0].debit(parseInt(data.amount), "admin", metaUser);
+  }
 
   return Promise.all([referralUserTransaction])
     .then(([referralUserTransaction]) => {
@@ -116,4 +159,80 @@ exports.createTransaction = async (data) => {
     .catch((err) => {
       throw new Error(err.message);
     });
+};
+exports.test = async (data) => {
+  var user = await User.findOne({
+    where: { mobile: data.mobile },
+    include: {
+      model: AcLedger,
+      as: "ac_ledgers",
+      where: { slug: "cash-wallet" },
+    },
+  });
+
+  if (!user) {
+    return new ResMessageError("User Not Found");
+  }
+
+  var metaUser = JSON.parse(JSON.stringify({ ref_no: "" }));
+
+  if (data.type === "credit") {
+    let level_distro = await CommonData.findOne({
+      where: {
+        key: "level_distro",
+      },
+    });
+
+    level_distro = JSON.parse(level_distro.data);
+
+    let i = 1;
+
+    const users = [];
+
+    while (user.sponsor && i < data.level) {
+      const nextUser = await User.findOne({
+        where: { referral_code: user.sponsor },
+        include: {
+          model: AcLedger,
+          as: "ac_ledgers",
+          where: { slug: "cash-wallet" },
+        },
+      });
+
+      await AcLedger.increment("balance", {
+        by: (data.amount * level_distro[i]) / 100,
+        where: {
+          user_id: nextUser.id,
+        },
+      });
+
+      user.sponsor = nextUser.sponsor;
+
+      if (!nextUser) {
+        break;
+      }
+
+      users.push(nextUser);
+      i++;
+    }
+
+    return users;
+  }
+
+  if (data.type === "debit") {
+    // var referralUserTransaction = user.ac_ledgers[0].debit(parseInt(data.amount), "admin", metaUser);
+  }
+
+  return metaUser;
+
+  // return Promise.all([referralUserTransaction])
+  //   .then(([referralUserTransaction]) => {
+  //     return new Promise(async (resolve, reject) => {
+  //       if (!referralUserTransaction) return reject("Unable to update cash wallet");
+  //       resolve(referralUserTransaction);
+  //     });
+  //   })
+  //   .catch((err) => {
+  //     throw new Error(err.message);
+  //   });
 };

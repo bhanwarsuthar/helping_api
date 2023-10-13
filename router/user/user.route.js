@@ -74,6 +74,7 @@ router.put("/addresses/:id/default", Auth, (req, res) => {
       res.json({ message: "default is done", data: address });
     })
     .catch((err) => {
+      console.log(err);
       res.status(400).json({ message: "Something went wrong." });
     });
 });

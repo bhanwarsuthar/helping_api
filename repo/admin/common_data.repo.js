@@ -40,7 +40,8 @@ exports.deleteCommonData = async (id) => {
     commonData.key === "INSTAGRAM" ||
     commonData.key === "YOUTUBE" ||
     commonData.key === "WHATSAPP" ||
-    commonData.key === "PRIVACY_POLICY"
+    commonData.key === "PRIVACY_POLICY" ||
+    commonData.key === "level_distro"
   ) {
     throw new ResMessageError("you can not delete this key");
   }

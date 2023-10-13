@@ -8,6 +8,8 @@ router.route("/users").get(adminRepo.getAllUsers);
 
 router.route("/transactions/:id").get(adminRepo.getPinTransByUserId);
 
+router.route("/dashboard").get(adminRepo.adminDashboardData);
+
 // router.route("/users").get((req, res) => {
 //   req.query = { ...req.query, include: [{ model: AcLedger, as: "ac_ledgers" }] };
 //   adminRepo

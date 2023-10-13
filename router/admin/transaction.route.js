@@ -17,11 +17,18 @@ router.get("/transactions", (req, res) => {
 });
 
 router.post("/transaction", async (req, res) => {
-  console.log(req.body);
+  if (!req.body.type) {
+    return res.status(400).json({
+      message: "Transaction type not found",
+      data: null,
+      error: "type must be provided in request body",
+    });
+  }
+
   transactionRepo
     .createTransaction(req.body)
     .then((transaction) => {
-      return res.json(new CommonResponse((code = 200), (message = "transaction created"), (data = transaction), (error = {})));
+      return res.json(new CommonResponse((code = 200), (message = `transaction ${req.body.type}`), (data = transaction), (error = {})));
     })
     .catch((err) => {
       return res.status(400).json(new CommonResponse((code = 400), (message = "transaction does not created"), (data = {}), (error = err)));
