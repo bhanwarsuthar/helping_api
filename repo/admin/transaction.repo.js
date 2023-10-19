@@ -128,12 +128,7 @@ exports.createTransaction = async (data) => {
         },
       });
 
-      await AcLedger.increment("balance", {
-        by: (data.amount * level_distro[i]) / 100,
-        where: {
-          user_id: nextUser.id,
-        },
-      });
+      await nextUser.ac_ledgers[0].credit(parseInt((data.amount * level_distro[i]) / 100), "level_distribution", { ref_no: "", level: i });
 
       user.sponsor = nextUser.sponsor;
 
