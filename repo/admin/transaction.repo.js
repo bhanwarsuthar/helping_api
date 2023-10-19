@@ -100,7 +100,7 @@ exports.createTransaction = async (data) => {
   });
 
   if (!user) {
-    return new ResMessageError("User Not Found");
+    throw new ResMessageError("User Not Found");
   }
 
   var metaUser = JSON.parse(JSON.stringify({ ref_no: "" }));
