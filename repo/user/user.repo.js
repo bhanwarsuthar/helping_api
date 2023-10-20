@@ -7,7 +7,10 @@ const { reject } = require("bluebird");
 const { ResMessageError } = require("../../exceptions/customExceptions");
 
 exports.profile = async (user) => {
-  return User.findByPk(user.id);
+  return User.findOne({
+    where: user.id,
+    include: ["ac_ledgers"],
+  });
 };
 
 exports.list = (query, limit = 20) => {

@@ -5,7 +5,7 @@ const { AcLedger, PinTransaction, User, Pin } = require("../../models");
 const pintTransactionRepo = require("../../repo/admin/pin_transaction.repo");
 
 const getAllUsers = async (req, res) => {
-  let { limit, page, key, sortBy } = req.query;
+  let { limit = 20, page = 1, key, sortBy } = req.query;
 
   const filter = { role: { [Op.not]: "admin" } };
 
@@ -23,9 +23,7 @@ const getAllUsers = async (req, res) => {
 
   try {
     let users = await User.findAll({
-      where: {
-        ...filter,
-      },
+      where: filter,
       include: [
         {
           model: AcLedger,

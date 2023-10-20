@@ -12,9 +12,7 @@ router.get("/profile", Auth, (req, res) => {
   userRepo
     .profile(req.user)
     .then(async (profile) => {
-      const walletData = await AcLedger.findOne({ where: { user_id: profile.id } });
-
-      res.json({ message: "", data: { profile, wallet: walletData } });
+      res.json({ message: "", data: profile });
     })
     .catch((err) => {
       console.log(err);

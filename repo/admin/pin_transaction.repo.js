@@ -7,6 +7,9 @@ const moment = require("moment");
 
 exports.pinTransactions = async (params) => {
   console.log(params);
+  if (params.order) {
+    params.order = JSON.parse(params?.order);
+  }
   const order = params.order;
   var whereCondition = order;
 
