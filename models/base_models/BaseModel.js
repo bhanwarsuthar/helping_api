@@ -18,7 +18,7 @@ class BaseModel extends Model {
     } catch (err) {
       console.log("error", err);
     }
-    let last_page = result.count / limit;
+    let last_page = result?.count / limit;
     last_page = last_page > 0 ? Math.ceil(last_page) : 1;
 
     return {

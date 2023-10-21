@@ -16,6 +16,7 @@ exports.profile = async (user) => {
 exports.list = (query, limit = 20) => {
   var filter = {};
   if (query.filters) {
+    query.filters = JSON.parse(query.filters);
     if (query.filters.id) {
       filter.id = query.filters.id;
     }
@@ -24,6 +25,12 @@ exports.list = (query, limit = 20) => {
     }
     if (query.filters.name) {
       filter.first_name = { [Op.like]: "%" + query.filters.name + "%" };
+    }
+    if (query.filters.role) {
+      filter.role = { [Op.like]: "%" + query.filters.role + "%" };
+    }
+    if (query.filters.status) {
+      filter.status = { [Op.like]: "%" + query.filters.status + "%" };
     }
   }
   return User.paginate(limit, { where: filter }, query.page);

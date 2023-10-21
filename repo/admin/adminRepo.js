@@ -5,7 +5,7 @@ const { AcLedger, PinTransaction, User, Pin } = require("../../models");
 const pintTransactionRepo = require("../../repo/admin/pin_transaction.repo");
 const userRepo = require("../../repo/user/user.repo.js");
 
-exports.getAllUsers = async (req, res) => {
+exports.users = async (req, res) => {
   userRepo
     .list(req.query, req.query.limit)
     .then((users) => {
@@ -17,11 +17,15 @@ exports.getAllUsers = async (req, res) => {
     });
 };
 
-exports.updateUser = async (req, res) => {
+exports.update_users = async (req, res) => {
   userRepo
-    .update_user(req.params, req.body)
-    .then((user) => {
-      res.status(200).json(user);
+    .list(req.query, req.query.limit)
+    .then((users) => {
+      users.rows.forEach(async (user) => {
+        for (const key in req.body) user[key] = req.body[key];
+        await user.save();
+      });
+      res.status(200).json(users);
     })
     .catch((error) => {
       console.log(error);

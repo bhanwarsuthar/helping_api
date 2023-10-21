@@ -4,9 +4,7 @@ const adminRepo = require("../../repo/admin/adminRepo.js");
 
 const router = express.Router();
 
-router.route("/users").get(adminRepo.getAllUsers);
-
-router.route("/users/:id").put(adminRepo.updateUser);
+router.route("/users").get(adminRepo.users).put(adminRepo.update_users);
 
 router.route("/transactions/:id").get(adminRepo.getPinTransByUserId);
 
