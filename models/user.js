@@ -75,13 +75,32 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.afterCreate(async (user, options) => {
+    const CommonData = sequelize.models.CommonData;
+    const register_bonus = await CommonData.findOne({
+      where: {
+        key: "REGISTER_BONUS",
+      },
+    });
+
     const AcLedger = sequelize.models.AcLedger;
-    await AcLedger.create({
+    const ac_ldeger = await AcLedger.create({
       user_id: user.id,
       ledger_name: "Cash Wallet",
       slug: AcLedger.CASH_WALLET,
-      balance: 0,
+      balance: register_bonus.data,
     });
+
+    const Ac_Ledger_Transactions = sequelize.models.Transactions;
+
+    await Ac_Ledger_Transactions.create({
+      user_id: user.id,
+      ac_ledger_id: ac_ldeger.id,
+      amount: register_bonus.data,
+      tx_type: "credit",
+      notation: "register_bonus",
+      meta: JSON.parse(JSON.stringify({ ref_no: "" })),
+    });
+
     // await AcLedger.create({
     //   user_id: user.id,
     //   ledger_name: "Promo Wallet",
