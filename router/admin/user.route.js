@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.route("/users").get(adminRepo.getAllUsers);
 
+router.route("/users/:id").put(adminRepo.updateUser);
+
 router.route("/transactions/:id").get(adminRepo.getPinTransByUserId);
 
 router.route("/dashboard").get(adminRepo.adminDashboardData);

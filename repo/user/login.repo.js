@@ -21,12 +21,17 @@ exports.login_with_password = async (req, res) => {
     .then((user) => {
       if (!user) res.status(400).json({ message: "Account not found." });
       else {
+        if (user.isBlocked(user.status)) {
+          return res.status(401).json({
+            message: "User is blocked",
+          });
+        }
         if (req.body.sponsor_code) {
           user.sponsor = req.body.sponsor_code;
         }
         bcrypt.compare(req.body.password, user.password, function (err, match) {
           if (err) {
-            res.status(400).json({ message: error });
+            res.status(400).json({ message: err });
           } else if (match) {
             var options = {
               subject: user.id.toString(),
@@ -56,6 +61,11 @@ exports.login_with_password = async (req, res) => {
 exports.has_mobile = async (req, res) => {
   User.findOne({ where: { mobile: req.body.mobile } })
     .then(async (user) => {
+      if (user?.isBlocked(user.status)) {
+        return res.status(401).json({
+          message: "User is blocked",
+        });
+      }
       if (await otpService.verifyOtp(user, { code: req.body.otp || "", send_to: req.body.mobile })) {
         res.status(400).json({ message: "Account not found." });
       } else {

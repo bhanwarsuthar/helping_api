@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       role: DataTypes.STRING,
+      status: { type: DataTypes.STRING, defaultValue: "active" },
       mobile_verified_at: { type: DataTypes.DATE },
       email_verified_at: { type: DataTypes.DATE },
     },
@@ -61,6 +62,10 @@ module.exports = (sequelize, DataTypes) => {
       updatedAt: "updated_at",
     }
   );
+
+  User.prototype.isBlocked = function (status) {
+    return status === "blocked" ? true : false;
+  };
 
   User.beforeCreate(async (user, options) => {
     if (user.referral_code == null) {

@@ -17,7 +17,7 @@ router.get("/pin/transactions", Auth, (req, res) => {
     });
 });
 
-router.post("/received/payment", (req, res) => {
+router.post("/received/payment", Auth, (req, res) => {
   pintTransactionRepo
     .receviedPayment(req.body)
     .then((pinTransactions) => {

@@ -10,6 +10,13 @@ var private_key = fs.readFileSync(path.resolve(__dirname, "../../private.key"), 
 
 exports.send_otp_new_user = async (req, res) => {
   let checkUser = await User.findOne({ where: { mobile: req.body.mobile } });
+
+  if (checkUser?.isBlocked(checkUser.status)) {
+    return res.status(401).json({
+      message: "User is blocked",
+    });
+  }
+
   if (checkUser) {
     return res.status(404).json({
       message: "mobile number has been taken.",
@@ -43,6 +50,13 @@ exports.resend_otp = async (req, res) => {
 
 exports.send_otp_forgot_password = async (req, res) => {
   let checkUser = await User.findOne({ where: { mobile: req.body.mobile } });
+
+  if (checkUser?.isBlocked(checkUser.status)) {
+    return res.status(401).json({
+      message: "User is blocked",
+    });
+  }
+
   if (checkUser) {
     req.user = checkUser;
     return await login.sendOtp(req, res);
@@ -70,8 +84,13 @@ exports.registration = async (req, res) => {
 };
 
 exports.update_forgot_password = async (req, res) => {
-  if (await otpService.verifyOtp(user, { code: req.body.otp || "", send_to: req.body.mobile })) {
+  if (await otpService.verifyOtp(user, { code: req.body.otp, send_to: req.body.mobile })) {
     var user = await User.findOne({ where: { mobile: req.body.mobile } });
+    if (user?.isBlocked(user.status)) {
+      return res.status(401).json({
+        message: "User is blocked",
+      });
+    }
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(req.body.password, salt);
     await user.save();
