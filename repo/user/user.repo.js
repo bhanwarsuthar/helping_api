@@ -33,7 +33,7 @@ exports.list = (query, limit = 20) => {
       filter.status = { [Op.like]: "%" + query.filters.status + "%" };
     }
   }
-  return User.paginate(limit, { where: filter }, query.page);
+  return User.paginate(limit, { where: filter, include: ["ac_ledgers"] }, query.page);
 };
 
 exports.create_user = (params) => {
