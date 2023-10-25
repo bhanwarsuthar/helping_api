@@ -4,12 +4,13 @@ const { AcLedger, PinTransaction, User, Pin } = require("../../models");
 
 const pintTransactionRepo = require("../../repo/admin/pin_transaction.repo");
 const userRepo = require("../../repo/user/user.repo.js");
+const { CommonResponse } = require("../../response/successResponse");
 
 exports.users = async (req, res) => {
   userRepo
     .list(req.query, req.query.limit)
     .then((users) => {
-      res.status(200).json(users);
+      res.status(200).json(new CommonResponse((code = 200), (message = "total users list"), (data = users)));
     })
     .catch((error) => {
       console.log(error);
