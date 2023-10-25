@@ -13,7 +13,7 @@ exports.profile = async (user) => {
   });
 };
 
-exports.list = (query, limit = 20) => {
+exports.list = (query, limit = 10) => {
   var filter = {};
   if (query.filters) {
     query.filters = JSON.parse(query.filters);

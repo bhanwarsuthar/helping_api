@@ -36,7 +36,7 @@ exports.update_users = async (req, res) => {
 exports.getPinTransByUserId = async (req, res) => {
   const { id } = req.params;
 
-  let { limit = 20, page = 1, status } = req.query;
+  let { limit = 10, page = 1, status } = req.query;
 
   const filter = { provide_user_id: +id, status };
 
