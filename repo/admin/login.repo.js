@@ -11,8 +11,10 @@ exports.login_with_password = async (req, res) => {
     .then((user) => {
       if (!user) res.status(400).json({ message: "Account not found." });
       else if (user.role == "guest") res.status(400).json({ message: "Account not activated." });
-      else if (user.role !== req.body.role) res.status(400).json({ message: "You are not admin" });
-      else {
+      else if (user.role !== req.body.role) {
+        console.log(user);
+        res.status(400).json({ message: "You are not admin" });
+      } else {
         bcrypt.compare(req.body.password, user.password, function (err, match) {
           if (err) {
             res.status(400).json({ message: error });

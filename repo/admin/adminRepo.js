@@ -26,7 +26,7 @@ exports.update_users = async (req, res) => {
         for (const key in req.body) user[key] = req.body[key];
         await user.save();
       });
-      res.status(200).json(users);
+      res.status(200).json(new CommonResponse((code = 200), (message = "total users list"), (data = users)));
     })
     .catch((error) => {
       console.log(error);
@@ -45,12 +45,7 @@ exports.getPinTransByUserId = async (req, res) => {
 
   try {
     const pinTransactions = await PinTransaction.findAll({ where: filter, order: [["created_at", "DESC"]], limit: +limit, offset: (page - 1) * limit });
-
-    res.status(200).json({
-      message: "User's pin transactions fetched Successfully",
-      data: { results: pinTransactions.length, pinTransactions },
-      error: null,
-    });
+    res.status(200).json(new CommonResponse((code = 200), (message = "User's pin transactions fetched Successfully"), (data = pinTransactions)));
   } catch (error) {
     console.log(error.message);
     res.status(500).json({
