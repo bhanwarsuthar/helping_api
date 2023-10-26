@@ -31,6 +31,7 @@ router.post("/transaction", async (req, res) => {
       return res.json(new CommonResponse((code = 200), (message = `transaction ${req.body.type}`), (data = transaction), (error = {})));
     })
     .catch((err) => {
+      console.log(err);
       return res.status(400).json(new CommonResponse((code = 400), (message = "transaction does not created"), (data = {}), (error = err)));
     });
 });

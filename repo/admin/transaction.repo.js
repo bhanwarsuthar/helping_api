@@ -106,7 +106,7 @@ exports.createTransaction = async (data) => {
   var metaUser = JSON.parse(JSON.stringify({ ref_no: "" }));
 
   if (data.type === "credit") {
-    var referralUserTransaction = user.ac_ledgers[0].credit(parseInt(data.amount), "admin", metaUser);
+    var referralUserTransaction = await user.ac_ledgers[0].credit(parseInt(data.amount), "admin", metaUser);
 
     let level_distro = await CommonData.findOne({
       where: {
@@ -116,9 +116,11 @@ exports.createTransaction = async (data) => {
 
     level_distro = JSON.parse(level_distro.data);
 
-    let i = 1;
+    var levelDistributionKeyList = Object.keys(level_distro);
+    levelDistributionKeyList.sort((a, b) => a - b);
 
-    while (user.sponsor && i < 3) {
+    for (let index = 0; index < levelDistributionKeyList.length; index++) {
+      const levelDistroKey = levelDistributionKeyList[index];
       const nextUser = await User.findOne({
         where: { referral_code: user.sponsor },
         include: {
@@ -128,15 +130,13 @@ exports.createTransaction = async (data) => {
         },
       });
 
-      await nextUser.ac_ledgers[0].credit(parseFloat((data.amount * level_distro[i]) / 100), "level_distribution", { ref_no: "", level: i });
-
-      user.sponsor = nextUser.sponsor;
-
-      if (!nextUser) {
+      if (!nextUser || !nextUser?.ac_ledgers || nextUser?.ac_ledgers.length == 0) {
         break;
       }
 
-      i++;
+      await nextUser.ac_ledgers[0].credit(parseFloat((data.amount * level_distro[levelDistroKey]) / 100), "level_distribution", { ref_no: "", level: levelDistroKey });
+
+      user.sponsor = nextUser.sponsor;
     }
   }
 
