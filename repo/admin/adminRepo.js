@@ -18,20 +18,10 @@ exports.users = async (req, res) => {
     });
 };
 
-exports.update_users = async (req, res) => {
-  userRepo
-    .list(req.query, req.query.limit)
-    .then((users) => {
-      users.rows.forEach(async (user) => {
-        for (const key in req.body) user[key] = req.body[key];
-        await user.save();
-      });
-      res.status(200).json(new CommonResponse((code = 200), (message = "total users list"), (data = users)));
-    })
-    .catch((error) => {
-      console.log(error);
-      res.status(400).json({ message: "Something went wrong." });
-    });
+exports.block_user = (req, res) => {
+  userRepo.block(req.body.user_id).then((user) => {
+    res.status(200).json(new CommonResponse((code = 200), (message = "user blocked"), (data = user)));
+  });
 };
 
 exports.getPinTransByUserId = async (req, res) => {

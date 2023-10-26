@@ -236,6 +236,45 @@ exports.inActive = (user_id) => {
     });
 };
 
+exports.block = (user_id) => {
+  return User.findByPk(user_id)
+    .then((user) => {
+      if (!user) {
+        throw new Error("User not found");
+      }
+      if (user.status === "blocked") {
+        throw new Error("User is already blocked");
+      }
+      user.status = "blocked";
+      user.save();
+      return user;
+    })
+    .catch((err) => {
+      throw new Error(err.message);
+    });
+};
+
+exports.unblock = (user_id) => {
+  if (!user_id) {
+    return new ResMessageError("user_id is required");
+  }
+  return User.findByPk(user_id)
+    .then((user) => {
+      if (!user) {
+        throw new Error("User not found");
+      }
+      if (user.status === "active") {
+        throw new Error("User is already active");
+      }
+      user.status = "active";
+      user.save();
+      return user;
+    })
+    .catch((err) => {
+      throw new Error(err.message);
+    });
+};
+
 exports.submitRewardPoint = async (sponsor_code, referral_user_id) => {
   var referralUser = await User.findOne({
     where: { id: referral_user_id },

@@ -2,24 +2,35 @@ const express = require("express");
 
 const adminRepo = require("../../repo/admin/adminRepo.js");
 
+const UserRepo = require("../../repo/user/user.repo.js");
+const { CommonResponse } = require("../../response/successResponse.js");
+
 const router = express.Router();
 
-router.route("/users").get(adminRepo.users).put(adminRepo.update_users);
+router.route("/users").get(adminRepo.users);
 
-router.route("/transactions/:id").get(adminRepo.getPinTransByUserId);
+router.put("/users/block", (req, res) => {
+  UserRepo.block(req.body.user_id)
+    .then((user) => {
+      return res.json(new CommonResponse((code = 200), (message = "User has been blocked successfully"), (data = user)));
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
+
+router.put("/users/unblock", (req, res) => {
+  UserRepo.unblock(req.body.user_id)
+    .then((user) => {
+      return res.json(new CommonResponse((code = 200), (message = "User has been unblocked successfully"), (data = user)));
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
 
 router.route("/dashboard").get(adminRepo.adminDashboardData);
-
-// router.route("/users").get((req, res) => {
-//   req.query = { ...req.query, include: [{ model: AcLedger, as: "ac_ledgers" }] };
-//   adminRepo
-//     .list(req.query, req.query?.limit)
-//     .then((users) => {
-//       res.status(200).json(new CommonResponse((code = 200), (message = "Users fetched Successfully"), (data = users)));
-//     })
-//     .catch((error) => {
-//       res.status(200).json(new CommonResponse((code = 500), (message = "Error while fetching users"), (error = error.message)));
-//     });
-// });
 
 module.exports = router;
