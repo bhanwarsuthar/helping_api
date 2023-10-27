@@ -31,7 +31,19 @@ exports.list = (params, limit = 10) => {
       ],
     };
   }
-  return User.paginate(limit, { where: userSearch, include: ["ac_ledgers"] }, params.page);
+  return User.paginate(
+    limit,
+    {
+      where: {
+        ...userSearch,
+        role: {
+          [Op.ne]: "admin",
+        },
+      },
+      include: ["ac_ledgers"],
+    },
+    params.page
+  );
 };
 
 exports.create_user = (params) => {

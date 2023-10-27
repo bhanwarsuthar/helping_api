@@ -17,7 +17,7 @@ exports.pins = (params) => {
 
 exports.preBookingPins = async (params) => {
   const activeReleasePin = await this.activeSinglePin();
-  console.log(activeReleasePin.start_time);
+  console.log(activeReleasePin.end_time);
   return PinTransaction.paginate(
     parseInt(params?.limit) || 10,
     {
@@ -25,7 +25,7 @@ exports.preBookingPins = async (params) => {
       where: {
         pin_id: activeReleasePin.id,
         created_at: {
-          [Op.lte]: moment.utc(activeReleasePin.start_time).local().format("YYYY-MM-DDTHH:mm:SS"),
+          [Op.lt]: activeReleasePin.end_time,
         },
       },
       include: [
