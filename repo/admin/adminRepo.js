@@ -70,7 +70,7 @@ const getPinTransaction = async (status) => {
 exports.adminDashboardData = async (req, res) => {
   const totalBalance = await AcLedger.findOne({ attributes: [[Sequelize.fn("SUM", Sequelize.col("balance")), "sum"]], raw: true });
 
-  const { pin_amount } = await Pin.findOne({
+  const pin = await Pin.findOne({
     where: {
       status: "active",
     },
@@ -81,9 +81,9 @@ exports.adminDashboardData = async (req, res) => {
     message: "Admin dashboard data fetched successfully",
     data: {
       total_wallet: +totalBalance.sum,
-      pin_amount,
-      pin_eligible: await getEligibility({ [Op.gte]: pin_amount }),
-      pin_not_eligible: await getEligibility({ [Op.lte]: pin_amount }),
+      pin_amount: pin?.pin_amount,
+      pin_eligible: await getEligibility({ [Op.gte]: pin?.pin_amount }),
+      pin_not_eligible: await getEligibility({ [Op.lte]: pin?.pin_amount }),
       transactions_status: {
         success: await getPinTransaction("success"),
         inprogress: await getPinTransaction("inprogress"),
