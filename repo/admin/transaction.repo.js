@@ -110,7 +110,7 @@ exports.createTransaction = async (data) => {
 
     let level_distro = await CommonData.findOne({
       where: {
-        key: "level_distro",
+        key: "LEVEL_DISTRIBUTION",
       },
     });
 
