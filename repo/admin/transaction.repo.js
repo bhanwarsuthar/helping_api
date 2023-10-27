@@ -110,7 +110,7 @@ exports.createTransaction = async (data) => {
 
     let level_distro = await CommonData.findOne({
       where: {
-        key: "level_distro",
+        key: "LEVEL_DISTRIBUTION",
       },
     });
 
@@ -134,7 +134,7 @@ exports.createTransaction = async (data) => {
         break;
       }
 
-      await nextUser.ac_ledgers[0].credit(parseFloat((data.amount * level_distro[levelDistroKey]) / 100), "level_distribution", { ref_no: "", level: levelDistroKey });
+      await nextUser.ac_ledgers[0].credit(parseFloat((data.amount * level_distro[levelDistroKey]) / 100), "LEVEL_DISTRIBUTION", { ref_no: "", level: levelDistroKey });
 
       user.sponsor = nextUser.sponsor;
     }

@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "facebook_id": null,
+    "google_id": null,
+    "first_name": "Bhawar",
+    "last_name": "Suthar",
+    "email": "bhanwar.marwadtech@gmail.com",
+    "password": "$2b$10$zkinjvxVu/YgE3wtgIhwVOvagl/obFGVvfBuVnjkiwSWXLsPG7.9e",
+    "referral_code": "8949441607",
+    "sponsor": null,
+    "mobile": "8949441607",
+    "role": "admin",
+    "mobile_verified_at": null,
+    "email_verified_at": null,
+    "country": null,
+    "geo_location": null,
+    "is_profile_completed": 0,
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01",
+    "status": "active"
+  }
+]

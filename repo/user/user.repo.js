@@ -13,27 +13,25 @@ exports.profile = async (user) => {
   });
 };
 
-exports.list = (query, limit = 10) => {
-  var filter = {};
-  if (query.filters) {
-    query.filters = JSON.parse(query.filters);
-    if (query.filters.id) {
-      filter.id = query.filters.id;
-    }
-    if (query.filters.mobile) {
-      filter.mobile = query.filters.mobile;
-    }
-    if (query.filters.name) {
-      filter.first_name = { [Op.like]: "%" + query.filters.name + "%" };
-    }
-    if (query.filters.role) {
-      filter.role = { [Op.like]: "%" + query.filters.role + "%" };
-    }
-    if (query.filters.status) {
-      filter.status = { [Op.like]: "%" + query.filters.status + "%" };
-    }
+exports.list = (params, limit = 10) => {
+  let userSearch = {};
+  if (params?.search) {
+    userSearch = {
+      [Op.or]: [
+        {
+          first_name: {
+            [Op.like]: `%${params?.search || ""}%`,
+          },
+        },
+        {
+          mobile: {
+            [Op.like]: `%${params?.search || ""}%`,
+          },
+        },
+      ],
+    };
   }
-  return User.paginate(limit, { where: filter, include: ["ac_ledgers"] }, query.page);
+  return User.paginate(limit, { where: userSearch, include: ["ac_ledgers"] }, params.page);
 };
 
 exports.create_user = (params) => {

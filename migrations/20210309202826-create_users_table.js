@@ -48,7 +48,7 @@ module.exports = {
           type: Sequelize.STRING(64),
           defaultValue: "customer", // customer, admin, seller
         },
-        status: { type: DataTypes.STRING, defaultValue: "active" },
+        status: { type: Sequelize.STRING, defaultValue: "active" },
         mobile_verified_at: {
           type: Sequelize.DATE,
         },
