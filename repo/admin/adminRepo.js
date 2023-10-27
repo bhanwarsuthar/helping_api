@@ -77,18 +77,21 @@ exports.adminDashboardData = async (req, res) => {
     order: [["start_time", "DESC"]],
   });
 
-  res.status(200).json({
-    message: "Admin dashboard data fetched successfully",
-    data: {
-      total_wallet: +totalBalance.sum,
-      pin_amount: pin?.pin_amount,
-      pin_eligible: await getEligibility({ [Op.gte]: pin?.pin_amount }),
-      pin_not_eligible: await getEligibility({ [Op.lte]: pin?.pin_amount }),
-      transactions_status: {
-        success: await getPinTransaction("success"),
-        inprogress: await getPinTransaction("inprogress"),
-        pending: await getPinTransaction("pending"),
-      },
-    },
-  });
+  res.status(200).json(
+    new CommonResponse(
+      (code = 200),
+      (message = "Admin dasbboard data"),
+      (data = {
+        total_wallet: +totalBalance.sum,
+        pin_amount: pin?.pin_amount,
+        pin_eligible: await getEligibility({ [Op.gte]: pin?.pin_amount }),
+        pin_not_eligible: await getEligibility({ [Op.lte]: pin?.pin_amount }),
+        transactions_status: {
+          success: await getPinTransaction("success"),
+          inprogress: await getPinTransaction("inprogress"),
+          pending: await getPinTransaction("pending"),
+        },
+      })
+    )
+  );
 };
