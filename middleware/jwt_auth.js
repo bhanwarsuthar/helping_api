@@ -4,13 +4,13 @@ const _ = require("lodash");
 const Auth = (req, res, next) => {
   passport.authenticate("user-jwt", { session: false }, function (err, user, info) {
     if (err || !user || _.isEmpty(user)) {
-      if (user?.isBlocked(user.status)) {
+      next(info);
+    } else {
+      if (user.isBlocked(user.status)) {
         return res.status(401).json({
           message: "User is blocked",
         });
       }
-      next(info);
-    } else {
       req.user = user;
       next();
     }

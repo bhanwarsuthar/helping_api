@@ -25,7 +25,7 @@ exports.preBookingPins = async (params) => {
       where: {
         pin_id: activeReleasePin.id,
         created_at: {
-          [Op.lt]: activeReleasePin.end_time,
+          [Op.lt]: moment(activeReleasePin.start_time),
         },
       },
       include: [
