@@ -13,7 +13,7 @@ exports.module = async function (notification) {
   const https = require("https");
   const options = {
     hostname: "2factor.in",
-    path: `/API/V1/956a7ac6-4b0f-11ea-9fa5-0200cd936042/SMS/+91${args.mobile}/${args.code}/HPFIVE`,
+    path: `/API/V1/5a1a049e-c604-11eb-8089-0200cd936042/SMS/+91${args.mobile}/${args.code}/HPFIVE`,
   };
   console.log(options.path);
 
