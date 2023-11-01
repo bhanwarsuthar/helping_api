@@ -1,0 +1,65 @@
+[
+  {
+    "id": 3,
+    "key": "UPI",
+    "data": "50009894989",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 6,
+    "key": "PRIVACY_POLICY",
+    "data": "https://google.com",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 7,
+    "key": "FACEBOOK",
+    "data": "https://Facebook.com",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 8,
+    "key": "INSTAGRAM",
+    "data": "https://Instagram.com",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 9,
+    "key": "WHATSAPP",
+    "data": "https://WhatsApp.com",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 11,
+    "key": "YOUTUBE",
+    "data": "https://YouTube.com",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 12,
+    "key": "BLOG",
+    "data": "https://blog.com",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 23,
+    "key": "LEVEL_DISTRIBUTION",
+    "data": "{ \"1\": 10, \"2\": 5, \"3\": 3}",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 24,
+    "key": "REGISTER_BONUS",
+    "data": "100",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  }
+]

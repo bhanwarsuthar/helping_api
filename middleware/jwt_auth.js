@@ -1,11 +1,16 @@
-const passport = require('passport');
-const _ = require('lodash');
+const passport = require("passport");
+const _ = require("lodash");
 
 const Auth = (req, res, next) => {
-  passport.authenticate('user-jwt', { session: false }, function(err, user, info) {
+  passport.authenticate("user-jwt", { session: false }, function (err, user, info) {
     if (err || !user || _.isEmpty(user)) {
       next(info);
     } else {
+      if (user.isBlocked(user.status)) {
+        return res.status(401).json({
+          message: "User is blocked",
+        });
+      }
       req.user = user;
       next();
     }
@@ -13,7 +18,7 @@ const Auth = (req, res, next) => {
 };
 
 const AdminAuth = (req, res, next) => {
-  passport.authenticate('admin-jwt', { session: false }, function(err, user, info) {
+  passport.authenticate("admin-jwt", { session: false }, function (err, user, info) {
     if (err || !user || _.isEmpty(user)) {
       next(info);
     } else {
@@ -24,7 +29,7 @@ const AdminAuth = (req, res, next) => {
 };
 
 const SellerAuth = (req, res, next) => {
-  passport.authenticate('seller-jwt', { session: false }, function(err, user, info) {
+  passport.authenticate("seller-jwt", { session: false }, function (err, user, info) {
     if (err || !user || _.isEmpty(user)) {
       next(info);
     } else {
@@ -35,7 +40,7 @@ const SellerAuth = (req, res, next) => {
 };
 
 const DeliveryBoyAuth = (req, res, next) => {
-  passport.authenticate('delivery-jwt', { session: false }, function(err, user, info) {
+  passport.authenticate("delivery-jwt", { session: false }, function (err, user, info) {
     if (err || !user || _.isEmpty(user)) {
       next(info);
     } else {
@@ -44,6 +49,5 @@ const DeliveryBoyAuth = (req, res, next) => {
     }
   })(req, res, next);
 };
-
 
 module.exports = { Auth, AdminAuth, SellerAuth, DeliveryBoyAuth };
