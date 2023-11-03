@@ -140,8 +140,8 @@ exports.createTransaction = async (data) => {
     }
   }
 
-  if (data.type === "debit" && user.ac_ledgers[0].balance >= data.amount) {
-    var referralUserTransaction = user.ac_ledgers[0].debit(parseInt(data.amount), "admin", metaUser);
+  if (data.type === "debit" && parseFloat(user.ac_ledgers[0].balance) >= parseFloat(data.amount)) {
+    var referralUserTransaction = await user.ac_ledgers[0].debit(parseInt(data.amount), "admin", metaUser);
   }
 
   return Promise.all([referralUserTransaction])
