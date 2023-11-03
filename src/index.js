@@ -12,6 +12,9 @@ const adminRouter = require("../router/admin");
 require(".././middleware/adminPassport");
 require(".././middleware/userPassport");
 
+const { User } = require("../models");
+const { Op } = require("sequelize");
+
 // defining the Express app
 const app = express();
 global.__basedir = __dirname;
@@ -26,6 +29,24 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// for google play console
+
+app.get("/user/delete/:mobile", async (req, res) => {
+  const user = await User.findOne({ where: { mobile: req.params.mobile.replace("+91", ""), role: { [Op.ne]: "admin" }, status: "active" } });
+
+  if (!user) {
+    return res.status(404).json({
+      error: "User not found",
+    });
+  }
+
+  await user.destroy();
+
+  res.status(200).json({
+    message: "User deleted successfully",
+  });
+});
 
 app.use("/v1", userRouter);
 app.use("/admin/v1", adminRouter);
