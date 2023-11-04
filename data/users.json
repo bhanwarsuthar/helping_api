@@ -19,5 +19,26 @@
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01",
     "status": "active"
+  },
+  {
+    "id": 2,
+    "facebook_id": null,
+    "google_id": null,
+    "first_name": "Veer",
+    "last_name": "Suthar",
+    "email": "",
+    "password": "$2b$10$3izVL7tpEY63S/IK.RHV0.xU8Rd1yLFN/jmMO2awIoO.U9nT43mNO",
+    "referral_code": "9929038980",
+    "sponsor": "8949441607",
+    "mobile": "9929038980",
+    "role": "user",
+    "mobile_verified_at": null,
+    "email_verified_at": null,
+    "country": null,
+    "geo_location": null,
+    "is_profile_completed": 0,
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01",
+    "status": "active"
   }
 ]
