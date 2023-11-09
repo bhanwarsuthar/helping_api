@@ -6,5 +6,13 @@
     "balance": 0,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "user_id": 2,
+    "ledger_name": "Cash Wallet",
+    "slug": "cash-wallet",
+    "balance": 100,
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
   }
 ]

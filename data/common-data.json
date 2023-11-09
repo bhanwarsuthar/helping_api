@@ -9,7 +9,7 @@
   {
     "id": 6,
     "key": "PRIVACY_POLICY",
-    "data": "https://google.com",
+    "data": "https://sites.google.com/view/raaz-helping/home",
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
@@ -52,6 +52,20 @@
     "id": 23,
     "key": "LEVEL_DISTRIBUTION",
     "data": "{ \"1\": 10, \"2\": 5, \"3\": 3}",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 25,
+    "key": "NEWS",
+    "data": "hello welcome to new system",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
+    "id": 22,
+    "key": "INVITE_FRIEND",
+    "data": "hello download krna",
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
