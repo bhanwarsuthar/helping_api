@@ -18,6 +18,10 @@ exports.users = async (req, res) => {
     });
 };
 
+exports.get_user = (mobile) => {
+  return User.findOne({ where: { mobile }, include: ["ac_ledgers"] });
+};
+
 exports.block_user = (req, res) => {
   userRepo.block(req.body.user_id).then((user) => {
     res.status(200).json(new CommonResponse((code = 200), (message = "user blocked"), (data = user)));
