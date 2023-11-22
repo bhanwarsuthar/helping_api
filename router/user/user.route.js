@@ -132,6 +132,17 @@ router.post("/attach_sponsor", Auth, validator(schema.sponsor_code), (req, res) 
     });
 });
 
+router.get("/direct_user", Auth, (req, res) => {
+  userRepo
+    .direct_users(req.user.mobile, req.query.page, req.query.limit)
+    .then((users) => {
+      res.json({ message: "", data: users });
+    })
+    .catch((err) => {
+      res.status(400).json({ message: err.message });
+    });
+});
+
 router.get("/wallets/:slug/history", Auth, async (req, res) => {
   var user = req.user;
   var wallet = await user.getLedger(req.params.slug);
