@@ -1,6 +1,6 @@
 const { OtpNotification } = require("../../notifications/otp.notification");
 const otpService = require("../../services/otp/otp.service");
-const { User, Address, AcLedger, AcLedgerTx, Transactions, DeliveryBoy } = require("../../models");
+const { User, Address, AcLedger, AcLedgerTx, Transactions, PinTransaction, DeliveryBoy, Pin } = require("../../models");
 const { Op } = require("sequelize");
 const sequelize = require("sequelize");
 const { reject } = require("bluebird");
@@ -9,7 +9,7 @@ const { ResMessageError } = require("../../exceptions/customExceptions");
 exports.profile = async (user) => {
   return User.findOne({
     where: user.id,
-    include: ["ac_ledgers"],
+    include: ["ac_ledgers", { model: PinTransaction, as: "pin_transaction", include: ["pin"] }],
   });
 };
 
@@ -203,6 +203,16 @@ exports.checkSponsor = async (sponsor_code) => {
     .catch((err) => {
       throw new Error(err.message);
     });
+};
+
+exports.direct_users = async (mobile, page = 1, limit = 10) => {
+  return User.paginate(
+    limit,
+    {
+      where: { sponsor: mobile },
+    },
+    page
+  );
 };
 
 exports.attachSponsor = async (user_id, sponsor_code) => {

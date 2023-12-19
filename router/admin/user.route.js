@@ -9,6 +9,15 @@ const router = express.Router();
 
 router.route("/users").get(adminRepo.users);
 
+router.route("/users/:mobile").get((req, res) => {
+  return adminRepo.get_user(req.params.mobile).then((user) => {
+    if (!user) {
+      return res.json(new CommonResponse((code = 404), (message = "User not found"), (data = user)));
+    }
+    return res.json(new CommonResponse((code = 200), (message = "User found"), (data = user)));
+  });
+});
+
 router.put("/users/block", (req, res) => {
   UserRepo.block(req.body.user_id)
     .then((user) => {
