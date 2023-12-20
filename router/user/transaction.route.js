@@ -3,7 +3,7 @@ const router = express.Router();
 const transactionRepo = require("../../repo/user/transaction.repo");
 const { CommonResponse } = require("../../response/successResponse");
 const { Auth } = require("../../middleware/jwt_auth");
-const { notifyAdmin, notificationContent } = require("../../utils/leveldistribution");
+const { notifyAdmin, notificationContent } = require("../../utils/notification");
 
 router.get("/transactions", Auth, (req, res) => {
   transactionRepo
