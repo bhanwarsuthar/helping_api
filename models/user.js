@@ -53,6 +53,7 @@ module.exports = (sequelize, DataTypes) => {
       status: { type: DataTypes.STRING, defaultValue: "active" },
       mobile_verified_at: { type: DataTypes.DATE },
       email_verified_at: { type: DataTypes.DATE },
+      direct_user_count: { type: DataTypes.INTEGER, defaultValue: 0 },
     },
     {
       sequelize,

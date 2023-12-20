@@ -1,8 +1,7 @@
 const { OtpNotification } = require("../../notifications/otp.notification");
 const otpService = require("../../services/otp/otp.service");
-const { User, Address, AcLedger, AcLedgerTx, Transactions, PinTransaction, DeliveryBoy, Pin } = require("../../models");
+const { User, Address, AcLedger, AcLedgerTx, Transactions, PinTransaction, DeliveryBoy, Pin, sequelize } = require("../../models");
 const { Op } = require("sequelize");
-const sequelize = require("sequelize");
 const { reject } = require("bluebird");
 const { ResMessageError } = require("../../exceptions/customExceptions");
 
@@ -11,6 +10,110 @@ exports.profile = async (user) => {
     where: user.id,
     include: ["ac_ledgers", { model: PinTransaction, as: "pin_transaction", include: ["pin"] }],
   });
+};
+
+exports.userInsights = async (data) => {
+  return Promise.all([
+    sequelize.query(
+      `
+    SELECT SUM(pin_amount) as total_amount, COUNT(*) as total_count
+      FROM pins hp
+        JOIN (
+          SELECT pin_id
+          FROM pin_transactions
+            WHERE provide_user_id = :userId AND status = 'success'
+        ) ph ON hp.id = ph.pin_id;
+    `,
+      {
+        type: sequelize.QueryTypes.SELECT,
+        plain: true,
+        replacements: { userId: data.userId },
+      }
+    ),
+
+    sequelize.query(
+      `
+    SELECT SUM(pin_amount) as total_amount, COUNT(*) as total_count
+      FROM pins hp
+        JOIN (
+          SELECT pin_id
+          FROM pin_transactions
+            WHERE receive_user_id = :userId AND status = 'success'
+        ) rh ON hp.id = rh.pin_id;
+    `,
+      {
+        type: sequelize.QueryTypes.SELECT,
+        plain: true,
+        replacements: { userId: data.userId },
+      }
+    ),
+  ]);
+};
+
+exports.getUsersByLevel = async (phoneNumber, level, options) => {
+  if (level === 1) {
+    var levelOneUsers = await User.paginate(
+      options.limit || 10,
+      {
+        where: {
+          sponsor: phoneNumber,
+        },
+        include: ["ac_ledgers"],
+      },
+      options.page || 1
+    );
+
+    return levelOneUsers;
+  }
+
+  levelOneUsers = await User.findAll({ where: { role: "user", sponsor: phoneNumber } });
+
+  let nextLevelUsers = [...levelOneUsers];
+
+  if (level > 1 && level <= 10) {
+    let counter = 2;
+    while (level >= counter) {
+      const phoneNumbers = [];
+      for (const user of nextLevelUsers) {
+        phoneNumbers.push(user.mobile);
+      }
+
+      if (level == counter) {
+        /**
+         * get pagination data and return the value
+         */
+        nextLevelUsers = await User.paginate(
+          options.limit || 10,
+          {
+            where: {
+              sponsor: {
+                [Op.in]: phoneNumbers,
+              },
+            },
+            include: ["ac_ledgers"],
+          },
+          options.page || 1
+        );
+        break;
+      } else {
+        /**
+         * get all data and go to next level data
+         */
+        nextLevelUsers = await User.findAll({
+          where: {
+            sponsor: {
+              [Op.in]: phoneNumbers,
+            },
+          },
+        });
+      }
+      counter++;
+    }
+
+    return nextLevelUsers;
+  } else {
+    throw new ResMessageError("Invalid level", 400);
+  }
 };
 
 exports.list = (params, limit = 10) => {

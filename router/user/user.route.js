@@ -7,12 +7,47 @@ const { allowedRoles } = require("../../middleware/roleAuth");
 const userRepo = require("../../repo/user/user.repo");
 const sequelize = require("sequelize");
 const { AcLedger } = require("../../models");
+const { CommonResponse } = require("../../response/successResponse");
 
 router.get("/profile", Auth, (req, res) => {
   userRepo
     .profile(req.user)
     .then(async (profile) => {
       res.json({ message: "", data: profile });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json({ message: "Something went wrong." });
+    });
+});
+
+router.get("/level/:num", Auth, (req, res) => {
+  userRepo
+    .getUsersByLevel(req.user.mobile, +req.params.num, req.query)
+    .then(async (profile) => {
+      res.json({ message: "", data: profile });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json({ message: "Something went wrong." });
+    });
+});
+
+router.get("/my-insights", Auth, (req, res) => {
+  userRepo
+    .userInsights({ userId: req.user.id })
+    .then(([ph, rh]) => {
+      res.status(200).json(
+        new CommonResponse(
+          (code = 200),
+          (message = "user insights fetched"),
+          (data = {
+            ph: { ...ph, total_amount: +ph.total_amount },
+            rh: { ...rh, total_amount: +rh.total_amount },
+          }),
+          (error = {})
+        )
+      );
     })
     .catch((err) => {
       console.log(err);

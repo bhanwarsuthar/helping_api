@@ -1,12 +1,13 @@
-const { CommonData, sequelize } = require("../../models")
-const fs = require("fs");
-const { Op, Sequelize, QueryTypes, INTEGER } = require('sequelize');
-const { ResMessageError } = require('../../exceptions/customExceptions');
-const { reject } = require('bluebird');
-const moment = require('moment');
-
+const { CommonData } = require("../../models");
 
 exports.commonData = async () => {
-    return CommonData.findAll();
-}
+  return CommonData.findAll();
+};
 
+exports.commonDataByKey = async (key) => {
+  return CommonData.findOne({
+    where: {
+      key,
+    },
+  });
+};

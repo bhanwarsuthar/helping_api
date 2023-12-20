@@ -141,52 +141,12 @@ exports.register_with_otp = async (req, res) => {
       user = await userRepo.submitRewardPoint(req.body.sponsor, user.id);
     }
 
-    var options = {
-      subject: user.id.toString(),
-      audience: "geri-api",
-      expiresIn: "180d", // token will expire after 180 days
-      algorithm: "RS256",
-    };
-    var token = jwt.sign({ data: null }, private_key, options);
-    return res.status(200).json({
-      message: "user created successfully",
-      data: {
-        access_token: token,
-        user: user,
+    await User.increment("direct_user_count", {
+      by: 1,
+      where: {
+        mobile: user.sponsor,
       },
     });
-  } else {
-    return res.status(400).json({
-      message: "Invalid otp",
-      errors: [
-        {
-          message: "Invalid otp",
-          body: ["otp"],
-        },
-      ],
-    });
-  }
-};
-
-exports.register_with_otp = async (req, res) => {
-  if (await otpService.verifyOtp(user, { code: req.body.otp || "", send_to: req.body.mobile })) {
-    var user = await User.findOne({ where: { mobile: req.body.mobile } });
-    if (!user) {
-      user = await User.build(req.body);
-      const salt = await bcrypt.genSalt(10);
-      // now we set user password to hashed password
-      user.password = await bcrypt.hash(req.body.password, salt);
-    }
-
-    if (user.mobile_verified_at == null) {
-      user.mobile_verified_at = new Date();
-      await user.save();
-    }
-    //update sponsor code is in submitRewardPoint() with promise handler
-    if (user.sponsor == null && user.referral_code != req.body.sponsor && req.body.sponsor) {
-      user.sponsor = req.body.sponsor;
-      user = await userRepo.submitRewardPoint(req.body.sponsor, user.id);
-    }
 
     var options = {
       subject: user.id.toString(),
