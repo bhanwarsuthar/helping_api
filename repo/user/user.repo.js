@@ -5,9 +5,9 @@ const { Op } = require("sequelize");
 const { reject } = require("bluebird");
 const { ResMessageError } = require("../../exceptions/customExceptions");
 
-exports.profile = async (user) => {
+exports.profile = async (filter) => {
   return User.findOne({
-    where: user.id,
+    where: filter,
     include: ["ac_ledgers", { model: PinTransaction, as: "pin_transaction", include: ["pin"] }],
   });
 };

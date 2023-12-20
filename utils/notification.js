@@ -30,7 +30,7 @@ exports.sendNotificationUser = async (payload) => {
 exports.sendNotificationAdmin = async (payload) => {
   try {
     // Create and send the notification using the OneSignal client.
-    const response = await clientAdmin.createNotification(payload);
+    const response = await clientUser.createNotification(payload);
 
     // Return the OneSignal API response.
     return response;
