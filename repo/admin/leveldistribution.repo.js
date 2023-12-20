@@ -43,7 +43,7 @@ exports.deleteLevel = (levelId) => {
       if (!level) {
         throw new ResMessageError("Level not found", 404);
       } else {
-        return level.destory();
+        return level.destroy();
       }
     })
     .catch((err) => {
@@ -52,5 +52,5 @@ exports.deleteLevel = (levelId) => {
 };
 
 exports.getLevel = (level) => {
-  return Level.findOne({ level });
+  return Level.findOne({ where: { level } });
 };

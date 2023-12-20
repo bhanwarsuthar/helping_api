@@ -5,6 +5,7 @@ const fs = require("fs");
 const bcrypt = require("bcrypt");
 const otpService = require("../../services/otp/otp.service");
 const login = require("./login.repo");
+const { notificationContent, notifyUser } = require("../../utils/leveldistribution");
 
 var private_key = fs.readFileSync(path.resolve(__dirname, "../../private.key"), "utf-8");
 
@@ -147,6 +148,10 @@ exports.register_with_otp = async (req, res) => {
         mobile: user.sponsor,
       },
     });
+
+    const sponsor = await User.findOne({ where: { mobile: user.sponsor } });
+
+    await notifyUser(notificationContent.sponsor.user.desc(), notificationContent.sponsor.user.title(), sponsor.id, notificationContent.sponsor.user.data(sponsor.id));
 
     var options = {
       subject: user.id.toString(),

@@ -3,6 +3,7 @@ const { QueryTypes } = require("sequelize");
 const { BaseModel } = require("./base_models/BaseModel");
 const { distributeAmtByLevel } = require("../utils/leveldistribution");
 const userRepo = require("../repo/user/user.repo");
+const { notifyUser, notificationContent } = require("../utils/notification");
 
 module.exports = (sequelize, DataTypes) => {
   class AcLedger extends BaseModel {
@@ -59,8 +60,14 @@ module.exports = (sequelize, DataTypes) => {
       );
       this.balance = qry.balance;
       this.save();
-      const user = await userRepo.profile({ id: tx.user_id });
-      await distributeAmtByLevel(user.sponsor, tx.amount);
+      // notifyUser(
+      //   notificationContent.transactionApproved.user.desc(tx.notation, tx.amount),
+      //   notificationContent.transactionApproved.user.title(tx.notation),
+      //   tx.user_id,
+      //   notificationContent.transactionApproved.user.data()
+      // );
+      // const user = await userRepo.profile({ id: tx.user_id });
+      // await distributeAmtByLevel(user.sponsor, tx.amount);
       return tx;
     }
 
@@ -80,6 +87,12 @@ module.exports = (sequelize, DataTypes) => {
       );
       this.balance = qry.balance;
       this.save();
+      notifyUser(
+        notificationContent.transactionReject.user.desc(tx.notation, tx.amount),
+        notificationContent.transactionReject.user.title(tx.notation),
+        tx.user_id,
+        notificationContent.transactionReject.user.data()
+      );
       return tx;
     }
 
