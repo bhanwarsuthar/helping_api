@@ -63,8 +63,8 @@ exports.createTransaction = async (data) => {
   var referralUserTransaction = user.ac_ledgers[0].pending(parseInt(data.body.amount), "self", meta);
 
   notifyAdmin(
-    notificationContent.transactionReject.admin.desc(user.full_name, user.phone_number),
-    notificationContent.transactionReject.admin.title(),
+    notificationContent.transactionReject.admin.desc(user.full_name, user.phone_number, "deposit", data.body.amount),
+    notificationContent.transactionReject.admin.title("deposit"),
     notificationContent.transactionReject.admin.data(user.id)
   );
 
