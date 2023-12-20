@@ -1,6 +1,6 @@
 const userRepo = require("../repo/user/user.repo.js");
-const leveldistributionRepo = require("../repo/admin/leveldistribution.repo.js");
-const commondata = require("../repo/user/common_data.repo.js");
+// const leveldistributionRepo = require("../repo/admin/leveldistribution.repo.js");
+// const commondata = require("../repo/user/common_data.repo.js");
 const { notifyUser, notificationContent } = require("../utils/notification.js");
 
 exports.distributeAmtByLevel = async (phoneNumber, amount) => {
