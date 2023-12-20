@@ -77,6 +77,10 @@ exports.registration = async (req, res) => {
   // now we set user password to hashed password
   user.password = await bcrypt.hash(req.body.password, salt);
 
+  const sponsor = await User.findOne({ where: { mobile: user.sponsor } });
+
+  await notifyUser(notificationContent.sponsor.user.desc(), notificationContent.sponsor.user.title(), sponsor.id, notificationContent.sponsor.user.data(sponsor.id));
+
   await user.save();
   return res.json({
     message: "",
@@ -148,10 +152,6 @@ exports.register_with_otp = async (req, res) => {
         mobile: user.sponsor,
       },
     });
-
-    const sponsor = await User.findOne({ where: { mobile: user.sponsor } });
-
-    await notifyUser(notificationContent.sponsor.user.desc(), notificationContent.sponsor.user.title(), sponsor.id, notificationContent.sponsor.user.data(sponsor.id));
 
     var options = {
       subject: user.id.toString(),
