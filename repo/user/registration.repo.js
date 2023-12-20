@@ -5,7 +5,7 @@ const fs = require("fs");
 const bcrypt = require("bcrypt");
 const otpService = require("../../services/otp/otp.service");
 const login = require("./login.repo");
-const { notificationContent, notifyUser } = require("../../utils/leveldistribution");
+const { notificationContent, notifyUser } = require("../../utils/notification");
 
 var private_key = fs.readFileSync(path.resolve(__dirname, "../../private.key"), "utf-8");
 
@@ -76,10 +76,6 @@ exports.registration = async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   // now we set user password to hashed password
   user.password = await bcrypt.hash(req.body.password, salt);
-
-  const sponsor = await User.findOne({ where: { mobile: user.sponsor } });
-
-  await notifyUser(notificationContent.sponsor.user.desc(), notificationContent.sponsor.user.title(), sponsor.id, notificationContent.sponsor.user.data(sponsor.id));
 
   await user.save();
   return res.json({
@@ -152,6 +148,10 @@ exports.register_with_otp = async (req, res) => {
         mobile: user.sponsor,
       },
     });
+
+    const sponsor = await User.findOne({ where: { mobile: user.sponsor } });
+
+    await notifyUser(notificationContent.sponsor.user.desc(), notificationContent.sponsor.user.title(), sponsor.id, notificationContent.sponsor.user.data(sponsor.id));
 
     var options = {
       subject: user.id.toString(),
