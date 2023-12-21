@@ -3,6 +3,7 @@ const fs = require("fs");
 const { Op, Sequelize, QueryTypes, INTEGER } = require("sequelize");
 const { ResMessageError } = require("../../exceptions/customExceptions");
 const { CommonData } = require("../../models");
+const { notifyUser, notificationContent } = require("../../utils/notification");
 
 exports.transactions = (params) => {
   console.log("ssssssssssss", params);
@@ -138,10 +139,22 @@ exports.createTransaction = async (data) => {
 
       user.sponsor = nextUser.sponsor;
     }
+    notifyUser(
+      notificationContent.amtCr.user.desc(referralUserTransaction.amount, false),
+      notificationContent.amtCr.user.title(false ? "Reward Credited" : "Amount Credited"),
+      referralUserTransaction.user_id,
+      notificationContent.amtCr.user.data()
+    );
   }
 
   if (data.type === "debit" && parseFloat(user.ac_ledgers[0].balance) >= parseFloat(data.amount)) {
     var referralUserTransaction = await user.ac_ledgers[0].debit(parseInt(data.amount), "admin", metaUser);
+    notifyUser(
+      notificationContent.amtDr.user.desc(referralUserTransaction.amount, false),
+      notificationContent.amtDr.user.title(false ? "Reward Deducted" : "Amount Deducted"),
+      referralUserTransaction.user_id,
+      notificationContent.amtDr.user.data()
+    );
   }
 
   return Promise.all([referralUserTransaction])
