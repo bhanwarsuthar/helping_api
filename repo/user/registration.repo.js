@@ -136,11 +136,6 @@ exports.register_with_otp = async (req, res) => {
       user.mobile_verified_at = new Date();
       await user.save();
     }
-    //update sponsor code is in submitRewardPoint() with promise handler
-    if (user.sponsor == null && user.referral_code != req.body.sponsor && req.body.sponsor) {
-      user.sponsor = req.body.sponsor;
-      user = await userRepo.submitRewardPoint(req.body.sponsor, user.id);
-    }
 
     await User.increment("direct_user_count", {
       by: 1,
