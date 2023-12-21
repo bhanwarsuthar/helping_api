@@ -48,7 +48,7 @@ router.put("/approve/transaction", async (req, res) => {
         approvedTx.user_id,
         notificationContent.transactionApproved.user.data()
       );
-      return res.json(new CommonResponse(200, (message = "transaction data updated"), (data = team.id)));
+      return res.json(new CommonResponse(200, (message = "transaction data updated"), (data = approvedTx.id)));
     })
     .catch((err) => {
       return res.status(400).json(new CommonResponse((code = 400), (message = err.message), (error = err)));
@@ -66,7 +66,7 @@ router.put("/reject/transaction", async (req, res) => {
         rejectedTx.user_id,
         notificationContent.transactionReject.user.data()
       );
-      return res.json(new CommonResponse(200, (message = "transaction data updated"), (data = team.id)));
+      return res.json(new CommonResponse(200, (message = "transaction data updated"), (data = rejectedTx.id)));
     })
     .catch((err) => {
       return res.status(400).json(new CommonResponse((code = 400), (message = err.message), (error = err)));
