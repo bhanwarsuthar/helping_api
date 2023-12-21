@@ -4,6 +4,7 @@ const sequelize = require("sequelize");
 const { Transactions } = require("../../models");
 const transactionRepo = require("../../repo/admin/transaction.repo");
 const { CommonResponse } = require("../../response/successResponse");
+const { notificationContent, notifyUser } = require("../../utils/notification");
 
 router.get("/transactions", (req, res) => {
   transactionRepo
@@ -40,7 +41,13 @@ router.put("/approve/transaction", async (req, res) => {
   console.log(req.body);
   transactionRepo
     .approveTransactions(req.body)
-    .then((team) => {
+    .then((approvedTx) => {
+      notifyUser(
+        notificationContent.transactionApproved.user.desc(approvedTx.notation, approvedTx.amount),
+        notificationContent.transactionApproved.user.title(approvedTx.notation),
+        approvedTx.user_id,
+        notificationContent.transactionApproved.user.data()
+      );
       return res.json(new CommonResponse(200, (message = "transaction data updated"), (data = team.id)));
     })
     .catch((err) => {
@@ -52,7 +59,13 @@ router.put("/reject/transaction", async (req, res) => {
   console.log(req.body);
   transactionRepo
     .rejectTransactions(req.body)
-    .then((team) => {
+    .then((rejectedTx) => {
+      notifyUser(
+        notificationContent.transactionReject.user.desc(rejectedTx.notation, rejectedTx.amount),
+        notificationContent.transactionReject.user.title(rejectedTx.notation),
+        rejectedTx.user_id,
+        notificationContent.transactionReject.user.data()
+      );
       return res.json(new CommonResponse(200, (message = "transaction data updated"), (data = team.id)));
     })
     .catch((err) => {
