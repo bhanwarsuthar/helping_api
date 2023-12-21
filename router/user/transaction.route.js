@@ -21,11 +21,11 @@ router.post("/transaction", Auth, (req, res) => {
   transactionRepo
     .createTransaction(req)
     .then((transaction) => {
-      const full_name = `${req.user.first_name} ${req.user.last_name}`;
+      const full_name = `${req.user.first_name}`;
       notifyAdmin(
-        notificationContent.transactionReq.admin.desc(full_name, req.user.mobile, "deposit", req.body.amount),
-        notificationContent.transactionReq.admin.title("deposit"),
-        notificationContent.transactionReq.admin.data(req.user.id)
+        notificationContent.transactionReject.admin.desc(full_name, req.user.mobile, "deposit", req.body.amount),
+        notificationContent.transactionReject.admin.title("deposit"),
+        notificationContent.transactionReject.admin.data(req.user.id)
       );
       return res.json(new CommonResponse((code = 200), (message = "transaction created"), (data = transaction), (error = {})));
     })

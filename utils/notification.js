@@ -58,9 +58,9 @@ exports.notifyUser = async (desc, title, id, data = {}) => {
 };
 
 exports.notifyAdmin = async (desc, title, data = {}) => {
-  const admin = userRepo.profile({ role: "admin" });
+  const admin = await userRepo.profile({ role: "admin" });
 
-  await this.sendNotificationAdmin({
+  await this.sendNotificationUser({
     contents: { en: desc },
     headings: {
       en: title,

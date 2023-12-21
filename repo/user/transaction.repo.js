@@ -1,7 +1,4 @@
-const { Transactions, Media, Team, History, sequelize, User, AcLedger } = require("../../models");
-const fs = require("fs");
-const { Op, Sequelize, QueryTypes, INTEGER } = require("sequelize");
-const { notifyAdmin, notificationContent } = require("../../utils/notification");
+const { Transactions, sequelize, User, AcLedger } = require("../../models");
 
 exports.transactions = (user, query) => {
   let filters = {};
@@ -61,12 +58,6 @@ exports.createTransaction = async (data) => {
   var meta = JSON.parse(JSON.stringify({ ref_no: data.body.ref_no }));
 
   var referralUserTransaction = user.ac_ledgers[0].pending(parseInt(data.body.amount), "self", meta);
-
-  notifyAdmin(
-    notificationContent.transactionReject.admin.desc(user.full_name, user.phone_number, "deposit", data.body.amount),
-    notificationContent.transactionReject.admin.title("deposit"),
-    notificationContent.transactionReject.admin.data(user.id)
-  );
 
   return Promise.all([referralUserTransaction])
     .then(([referralUserTransaction]) => {

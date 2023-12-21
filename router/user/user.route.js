@@ -11,7 +11,7 @@ const { CommonResponse } = require("../../response/successResponse");
 
 router.get("/profile", Auth, (req, res) => {
   userRepo
-    .profile(req.user)
+    .profile({ id: req.user.id })
     .then(async (profile) => {
       res.json({ message: "", data: profile });
     })
