@@ -12,8 +12,8 @@ exports.module = async function (notification) {
 
   const https = require("https");
   const options = {
-    hostname: "2factor.in",
-    path: `/API/V1/5a1a049e-c604-11eb-8089-0200cd936042/SMS/+91${args.mobile}/${args.code}/HPFIVE`,
+    hostname: "www.fast2sms.com",
+    path: `/dev/bulkV2?authorization=XUjiaHKPBMVcI6zyJLEhT1FlNAq5GeQDCp3OvZgbxsukYo8m0WMKze9W1VIAh47GLptHN2n0fuwPQxOv&variables_values=${args.code}&route=otp&numbers=${args.mobile}`,
   };
   console.log(options.path);
 
