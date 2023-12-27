@@ -6,17 +6,17 @@ const { reject } = require("bluebird");
 const moment = require("moment");
 
 exports.pinTransactions = async (query) => {
-  if (query.order) {
-    query.order = JSON.parse(query?.order);
-  }
-  var whereCondition = query?.order;
+  const page = +query.page | 1;
+  const limit = +query.limit || 10;
 
-  console.log(query);
+  delete query.page;
+  delete query.limit;
+
   return PinTransaction.paginate(
-    parseInt(query?.limit) || 10,
+    limit,
     {
       order: [["created_at", "DESC"]],
-      where: whereCondition,
+      where: query,
       include: [
         {
           model: User,
@@ -32,7 +32,7 @@ exports.pinTransactions = async (query) => {
         },
       ],
     },
-    query?.page || 1
+    page
   );
 };
 
