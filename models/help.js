@@ -1,9 +1,7 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { BaseModel } = require("./base_models/BaseModel");
 module.exports = (sequelize, DataTypes) => {
-  class Help extends Model {
+  class Help extends BaseModel {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,18 +11,21 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  Help.init({
-    user_id: DataTypes.BIGINT.UNSIGNED,
-    pin_id: DataTypes.BIGINT.UNSIGNED,
-    status: DataTypes.STRING,
-  }, {
-    sequelize,
-    modelName: 'Help',
-    tableName: 'helpes',
-    underscored: true,
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
-  });
+  Help.init(
+    {
+      user_id: DataTypes.BIGINT.UNSIGNED,
+      pin_id: DataTypes.BIGINT.UNSIGNED,
+      status: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "Help",
+      tableName: "helpes",
+      underscored: true,
+      timestamps: true,
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    }
+  );
   return Help;
 };
