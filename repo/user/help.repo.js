@@ -39,5 +39,11 @@ exports.receiveLinks = async (query, user) => {
   if (!query.user_id) delete filter.user_id;
   if (!query.status) delete filter.status;
 
-  return Help.findAll({ where: filter });
+  return Help.findAll({
+    where: filter,
+    include: [
+      { model: User, as: "user" },
+      { model: Pin, as: "pin" },
+    ],
+  });
 };
