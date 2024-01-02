@@ -12,8 +12,8 @@ exports.module = async function (notification) {
 
   const https = require("https");
   const options = {
-    hostname: "www.fast2sms.com",
-    path: `/dev/bulkV2?authorization=XUjiaHKPBMVcI6zyJLEhT1FlNAq5GeQDCp3OvZgbxsukYo8m0WMKze9W1VIAh47GLptHN2n0fuwPQxOv&variables_values=${args.code}&route=otp&numbers=${args.mobile}`,
+    hostname: "www.2factor.in",
+    path: `/API/R1?module=TRANS_SMS&to=${args.mobile}&from=OCTVIA&apikey=5a1a049e-c604-11eb-8089-0200cd936042&templatename=otp%20verification&var1=${args.code}`,
   };
   console.log(options.path);
 
