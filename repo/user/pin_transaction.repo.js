@@ -41,7 +41,7 @@ exports.pinTransactions = async (query) => {
 };
 
 exports.links = async (options) => {
-  return Help.findAll({ where: options });
+  return Help.findAll({ where: options, include: ["user", "pin"] });
 };
 
 exports.receviedPayment = async (body) => {
