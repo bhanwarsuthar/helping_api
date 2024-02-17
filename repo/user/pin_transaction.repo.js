@@ -1,4 +1,4 @@
-const { Pin, User, AcLedger, PinTransaction, Media, Team, History, sequelize, Help } = require("../../models");
+const { Pin, User, AcLedger, PinTransaction, Team, History, sequelize, Help } = require("../../models");
 const fs = require("fs");
 const { Op, Sequelize, QueryTypes, INTEGER } = require("sequelize");
 const { ResMessageError } = require("../../exceptions/customExceptions");
@@ -19,7 +19,7 @@ exports.pinTransactions = async (query) => {
   return PinTransaction.paginate(
     limit,
     {
-      order: [["created_at", "DESC"]],
+      order: [["status", "ASC"]],
       where: where,
       include: [
         {
@@ -38,6 +38,10 @@ exports.pinTransactions = async (query) => {
     },
     page
   );
+};
+
+exports.links = async (options) => {
+  return Help.findAll({ where: options });
 };
 
 exports.receviedPayment = async (body) => {

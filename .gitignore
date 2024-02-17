@@ -5,3 +5,4 @@ public.key
 src/uploads/*
 uploads/*
 .vscode/
+playground
