@@ -3,6 +3,8 @@ const router = express.Router();
 const sequelize = require("sequelize");
 const { Transactions } = require("../../models");
 const transactionRepo = require("../../repo/admin/transaction.repo");
+const userRepo = require("../../repo/user/user.repo");
+const { distributeAmtByLevel } = require("../../utils/leveldistribution");
 const { CommonResponse } = require("../../response/successResponse");
 const { notificationContent, notifyUser } = require("../../utils/notification");
 
@@ -41,13 +43,22 @@ router.put("/approve/transaction", async (req, res) => {
   console.log(req.body);
   transactionRepo
     .approveTransactions(req.body)
-    .then((approvedTx) => {
+    .then(async (approvedTx) => {
       notifyUser(
         notificationContent.transactionApproved.user.desc(approvedTx.notation, approvedTx.amount),
         notificationContent.transactionApproved.user.title(approvedTx.notation),
         approvedTx.user_id,
         notificationContent.transactionApproved.user.data()
       );
+
+      notifyUser(
+        notificationContent.transactionApproved.user.desc(approvedTx.notation, approvedTx.amount),
+        notificationContent.transactionApproved.user.title(approvedTx.notation),
+        approvedTx.user_id,
+        notificationContent.transactionApproved.user.data()
+      );
+      const user = await userRepo.profile({ id: approvedTx.user_id });
+      await distributeAmtByLevel(user.sponsor, approvedTx.amount);
       return res.json(new CommonResponse(200, (message = "transaction data updated"), (data = approvedTx.id)));
     })
     .catch((err) => {

@@ -1,7 +1,7 @@
 "use strict";
 const { QueryTypes } = require("sequelize");
 const { BaseModel } = require("./base_models/BaseModel");
-const { distributeAmtByLevel } = require("../utils/leveldistribution");
+// const { distributeAmtByLevel } = require("../utils/leveldistribution");
 const userRepo = require("../repo/user/user.repo");
 const { notifyUser, notificationContent } = require("../utils/notification");
 
@@ -60,14 +60,6 @@ module.exports = (sequelize, DataTypes) => {
       );
       this.balance = qry.balance;
       this.save();
-      notifyUser(
-        notificationContent.transactionApproved.user.desc(tx.notation, tx.amount),
-        notificationContent.transactionApproved.user.title(tx.notation),
-        tx.user_id,
-        notificationContent.transactionApproved.user.data()
-      );
-      const user = await userRepo.profile({ id: tx.user_id });
-      await distributeAmtByLevel(user.sponsor, tx.amount);
       return tx;
     }
 

@@ -39,5 +39,5 @@ const sendLevelDistribution = async (user, amount, level) => {
 
   await user.ac_ledgers[0].credit(amount, "level_distribution", meta);
 
-  notifyUser(notificationContent.commission.user.desc((amount / 100) * percentage, level), notificationContent.commission.user.title(), user.id, notificationContent.commission.user.data());
+  notifyUser(notificationContent.commission.user.desc(amount, level), notificationContent.commission.user.title(), user.id, notificationContent.commission.user.data());
 };
