@@ -1,7 +1,8 @@
 "use strict";
 const { Model } = require("sequelize");
+const { BaseModel } = require("./base_models/BaseModel");
 module.exports = (sequelize, DataTypes) => {
-  class CommonData extends Model {
+  class CommonData extends BaseModel {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -22,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "common_data",
       createdAt: "created_at",
       updatedAt: "updated_at",
+      underscored: true,
     }
   );
   return CommonData;

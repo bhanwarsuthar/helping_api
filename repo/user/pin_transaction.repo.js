@@ -12,11 +12,15 @@ exports.pinTransactions = async (query) => {
   delete query.page;
   delete query.limit;
 
+  if (query.order) {
+    var where = JSON.parse(query?.order);
+  }
+
   return PinTransaction.paginate(
     limit,
     {
       order: [["created_at", "DESC"]],
-      where: query,
+      where: where,
       include: [
         {
           model: User,
