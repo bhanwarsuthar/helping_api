@@ -25,14 +25,17 @@ exports.pinTransactions = async (query) => {
         {
           model: User,
           as: "provide",
+          required: false,
         },
         {
           model: User,
           as: "receive",
+          required: false,
         },
         {
           model: Pin,
           as: "pin",
+          required: false,
         },
       ],
     },
