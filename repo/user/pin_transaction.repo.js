@@ -6,7 +6,7 @@ const { reject } = require("bluebird");
 const moment = require("moment");
 
 exports.pinTransactions = async (query) => {
-  const page = +query.page | 1;
+  const page = +query.page || 1;
   const limit = +query.limit || 10;
 
   delete query.page;
