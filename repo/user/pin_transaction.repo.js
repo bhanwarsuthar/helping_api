@@ -19,7 +19,7 @@ exports.pinTransactions = async (query) => {
   return PinTransaction.paginate(
     limit,
     {
-      order: [["status", "ASC"]],
+      order: [["created_at", "DESC"]],
       where: where,
       include: [
         {
