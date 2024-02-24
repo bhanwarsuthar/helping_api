@@ -43,13 +43,35 @@ exports.pinTransactions = async (query) => {
   );
 };
 
+exports.getPinTransactionById = async (id) => {
+  return PinTransaction.findByPk(id, {
+    include: [
+      {
+        model: User,
+        as: "provide",
+        required: false,
+      },
+      {
+        model: User,
+        as: "receive",
+        required: false,
+      },
+      {
+        model: Pin,
+        as: "pin",
+        required: false,
+      },
+    ],
+  });
+};
+
 exports.links = async (options) => {
   return Help.findAll({ where: options, include: ["user", "pin"] });
 };
 
 exports.receviedPayment = async (body) => {
   const pinTransactionId = +body.id;
-  const pinTransaction = await PinTransaction.findByPk(pinTransactionId);
+  const pinTransaction = await this.getPinTransactionById(pinTransactionId);
   if (!pinTransaction) {
     throw new ResMessageError("Transaction not found!");
   }
