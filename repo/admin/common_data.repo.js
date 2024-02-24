@@ -40,6 +40,7 @@ exports.deleteCommonData = async (id) => {
     commonData.key === "INSTAGRAM" ||
     commonData.key === "YOUTUBE" ||
     commonData.key === "WHATSAPP" ||
+    commonData.key === "TELEGRAM" ||
     commonData.key === "PRIVACY_POLICY" ||
     commonData.key === "LEVEL_DISTRIBUTION" ||
     commonData.key === "BLOG" ||
