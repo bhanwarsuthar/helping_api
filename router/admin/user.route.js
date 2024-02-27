@@ -4,6 +4,7 @@ const adminRepo = require("../../repo/admin/adminRepo.js");
 
 const UserRepo = require("../../repo/user/user.repo.js");
 const { CommonResponse } = require("../../response/successResponse.js");
+const { notificationContent, notifyUser, sendNotificationUser } = require("../../utils/notification.js");
 
 const router = express.Router();
 
@@ -41,5 +42,19 @@ router.put("/users/unblock", (req, res) => {
 });
 
 router.route("/dashboard").get(adminRepo.adminDashboardData);
+
+router.post("/notity-users", async (req, res) => {
+  return sendNotificationUser({
+    contents: {
+      en: req.body.message,
+    },
+    headings: {
+      en: req.body.heading || "Admin",
+    },
+    included_segments: ["All"],
+  }).then(() => {
+    return res.json(new CommonResponse((code = 200), (message = "Notification sent to all users")));
+  });
+});
 
 module.exports = router;
