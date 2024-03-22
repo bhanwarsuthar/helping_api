@@ -4,6 +4,7 @@ const sequelize = require("sequelize");
 const { PinTransaction } = require("../../models");
 const pintTransactionRepo = require("../../repo/admin/pin_transaction.repo");
 const { CommonResponse } = require("../../response/successResponse");
+const { Auth } = require("../../middleware/jwt_auth");
 
 router.get("/pin/transactions", (req, res) => {
   pintTransactionRepo
@@ -58,6 +59,12 @@ router.post("/received/payment", (req, res) => {
     .catch((err) => {
       res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
     });
+});
+
+router.get("/links", (req, res) => {
+  pintTransactionRepo.links(req.query).then((links) => {
+    res.status(200).json(new CommonResponse((code = 200), (message = "links fetched"), (data = links)));
+  });
 });
 
 module.exports = router;

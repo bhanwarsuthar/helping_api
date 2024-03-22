@@ -104,6 +104,10 @@ exports.linkConnectAuto = async (body) => {
   return pinTransaction;
 };
 
+exports.links = async (options) => {
+  return Help.findAll({ where: options, include: ["user", "pin"] });
+};
+
 exports.receviedPayment = async (body) => {
   const pinTransactionId = Number(body.id);
   const pinTransaction = await PinTransaction.findByPk(pinTransactionId);
