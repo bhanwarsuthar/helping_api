@@ -41,3 +41,6 @@ const sendLevelDistribution = async (user, amount, level) => {
 
   notifyUser(notificationContent.commission.user.desc(amount, level), notificationContent.commission.user.title(), user.id, notificationContent.commission.user.data());
 };
+
+
+//sjj
