@@ -1,4 +1,4 @@
-const { Pin, User, AcLedger, PinTransaction, Media, Team, History, sequelize } = require("../../models")
+const { Pin, User, AcLedger, PinTransaction, Media, Team, History, Help, sequelize } = require("../../models")
 const fs = require("fs");
 const { Op, Sequelize, QueryTypes, INTEGER } = require('sequelize');
 const { ResMessageError } = require('../../exceptions/customExceptions');
@@ -9,9 +9,7 @@ const moment = require('moment');
 exports.pinTransactions = async (params) => {
     return PinTransaction.paginate(parseInt(params?.limit) || 10, {
         order: [['created_at', 'DESC']],
-        where: {
-            
-        },
+        where: {},
         include: [{
             model: User,
             as: 'provide'
@@ -27,6 +25,31 @@ exports.pinTransactions = async (params) => {
         ]
     }, params?.page || 1)
 }
+
+
+exports.pendingRhLink = async (params) => {
+    if (params.order) {
+        params.order = JSON.parse(params?.order);
+    }
+    const order = params.order;
+    var whereCondition = order;
+    return Help.paginate(parseInt(params?.limit) || 10, {
+        order: [['created_at', 'ASC']],
+        where: whereCondition,
+        include: [
+            {
+                model: User,
+                as: 'user'
+            },
+            {
+                model: Pin,
+                as: 'pin'
+            }
+        ]
+    }, params?.page || 1)
+}
+
+
 
 exports.linkConnectCustom = async (body) => {
     const mobile = body.mobile;

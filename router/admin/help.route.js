@@ -11,7 +11,7 @@ router.get('/pin/transactions', (req, res) => {
         .then(pinTransactions => {
             res.json(new CommonResponse(code = 200, message = 'total Pin Transactions list', data = pinTransactions));
         }).catch(err => {
-            res.status(400).json(new CommonResponse(code = 400, message= err.message ));
+            res.status(400).json(new CommonResponse(code = 400, message = err.message));
         })
 });
 
@@ -20,7 +20,7 @@ router.get('/link/connect/self', (req, res) => {
         .then(pinTransactions => {
             res.json(new CommonResponse(code = 200, message = 'Link attached', data = pinTransactions));
         }).catch(err => {
-            res.status(400).json(new CommonResponse(code = 400, message= err.message ));
+            res.status(400).json(new CommonResponse(code = 400, message = err.message));
         })
 });
 
@@ -29,7 +29,7 @@ router.get('/link/connect/custom', (req, res) => {
         .then(pinTransactions => {
             res.json(new CommonResponse(code = 200, message = 'Link attached', data = pinTransactions));
         }).catch(err => {
-            res.status(400).json(new CommonResponse(code = 400, message= err.message ));
+            res.status(400).json(new CommonResponse(code = 400, message = err.message));
         })
 });
 
@@ -38,8 +38,18 @@ router.get('/link/connect/auto', (req, res) => {
         .then(pinTransactions => {
             res.json(new CommonResponse(code = 200, message = 'Link attached', data = pinTransactions));
         }).catch(err => {
-            res.status(400).json(new CommonResponse(code = 400, message= err.message ));
+            res.status(400).json(new CommonResponse(code = 400, message = err.message));
         })
 });
+
+router.get('/link/pending/rh', (req, res) => {
+    helpRepo.pendingRhLink(req.query)
+        .then(pendingRhLinks => {
+            res.json(new CommonResponse(code = 200, message = 'total pending RH link list', data = pendingRhLinks));
+        }).catch(err => {
+            res.status(400).json(new CommonResponse(code = 400, message = err.message));
+        })
+});
+
 
 module.exports = router;

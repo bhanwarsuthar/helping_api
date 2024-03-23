@@ -61,10 +61,4 @@ router.post("/received/payment", (req, res) => {
     });
 });
 
-router.get("/links", (req, res) => {
-  pintTransactionRepo.links(req.query).then((links) => {
-    res.status(200).json(new CommonResponse((code = 200), (message = "links fetched"), (data = links)));
-  });
-});
-
 module.exports = router;
