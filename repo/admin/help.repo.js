@@ -1,6 +1,6 @@
 const { Pin, User, AcLedger, PinTransaction, Media, Team, History, Help, sequelize } = require("../../models")
 const fs = require("fs");
-const { Op, Sequelize, QueryTypes, INTEGER } = require('sequelize');
+const { Op, Sequelize, QueryTypes, INTEGER, where } = require('sequelize');
 const { ResMessageError } = require('../../exceptions/customExceptions');
 const { reject } = require('bluebird');
 const moment = require('moment');
@@ -33,6 +33,7 @@ exports.pendingRhLink = async (params) => {
     }
     const order = params.order;
     var whereCondition = order;
+    console.log(whereCondition);
     return Help.paginate(parseInt(params?.limit) || 10, {
         order: [['created_at', 'ASC']],
         where: whereCondition,

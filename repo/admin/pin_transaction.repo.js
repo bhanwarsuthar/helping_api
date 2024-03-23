@@ -104,6 +104,28 @@ exports.linkConnectAuto = async (body) => {
   return pinTransaction;
 };
 
+exports.userPendingRhConnectToPh = async (body) => {
+  const pinTransaction = await PinTransaction.findOne({
+    where: {
+      status: "pending"
+    }
+  });
+  if (!pinTransaction) {
+    throw new ResMessageError("Provider User Not Found");
+  }
+  const help = await Help.findByPk(Number(body.help_id));
+  if (!help) {
+    throw new ResMessageError("Link not available");
+  }
+  pinTransaction.receive_user_id = Number(help.user_id);
+  pinTransaction.status = "inprogress";
+  await pinTransaction.save();
+  help.status = "success";
+  await help.save();
+  return help;
+};
+
+
 exports.links = async (options) => {
   return Help.findAll({ where: options, include: ["user", "pin"] });
 };

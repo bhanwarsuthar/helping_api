@@ -61,4 +61,18 @@ router.post("/received/payment", (req, res) => {
     });
 });
 
+
+
+
+router.post("/user/pending/rh/connect/ph", (req, res) => {
+  pintTransactionRepo
+    .userPendingRhConnectToPh(req.body)
+    .then((pinTransactions) => {
+      res.json(new CommonResponse((code = 200), (message = "Links Connected successfully"), (data = pinTransactions)));
+    })
+    .catch((err) => {
+      res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
+
 module.exports = router;
