@@ -61,8 +61,16 @@ router.post("/received/payment", (req, res) => {
     });
 });
 
-
-
+router.post("/ph/rh/cancel", (req, res) => {
+  pintTransactionRepo
+    .phRhCancel(req.body)
+    .then((pinTransactions) => {
+      res.json(new CommonResponse((code = 200), (message = "Successfully cancel"), (data = pinTransactions)));
+    })
+    .catch((err) => {
+      res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
 
 router.post("/user/pending/rh/connect/ph", (req, res) => {
   pintTransactionRepo

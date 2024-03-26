@@ -19,6 +19,19 @@ router.get("/transactions", (req, res) => {
     });
 });
 
+
+router.get("/transactions/total/deposit", (req, res) => {
+  transactionRepo
+    .totalDeposit(req.query)
+    .then((users) => {
+      res.json(new CommonResponse((code = 200), (message = "total deposit amount"), (data = users)));
+    })
+    .catch((err) => {
+      res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
+
+
 router.post("/transaction", async (req, res) => {
   if (!req.body.type) {
     return res.status(400).json({

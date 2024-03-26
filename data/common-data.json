@@ -70,6 +70,13 @@
     "updated_at": "2023-10-27 04:57:01"
   },
   {
+    "id": 25,
+    "key": "SPONSOR_BONUS",
+    "data": "50",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2023-10-27 04:57:01"
+  },
+  {
     "id": 38,
     "key": "HAS_LEVEL_DIST_TO_DIRECT_USER",
     "data": "true",

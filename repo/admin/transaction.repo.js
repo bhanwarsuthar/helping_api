@@ -40,6 +40,17 @@ exports.transactions = (params) => {
   );
 };
 
+exports.totalDeposit = () => {
+  return Transactions.findOne({
+    where: {
+      notation: "deposit",
+      tx_type: "credit"
+    },
+    attributes: [[sequelize.fn("SUM", sequelize.col("amount")), "total_amount"]],
+    raw: true,
+  });
+};
+
 exports.approveTransactions = async (data) => {
   var user = await User.findOne({
     where: { mobile: data.mobile },

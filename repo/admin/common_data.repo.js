@@ -45,6 +45,7 @@ exports.deleteCommonData = async (id) => {
     commonData.key === "LEVEL_DISTRIBUTION" ||
     commonData.key === "BLOG" ||
     commonData.key === "REGISTER_BONUS" ||
+    commonData.key === "SPONSOR_BONUS" ||
     commonData.key === "NEWS" ||
     commonData.key === "INVITE_FRIEND" ||
     commonData.key === "HAS_LEVEL_DIST_TO_DIRECT_USER"

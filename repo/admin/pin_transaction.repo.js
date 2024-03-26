@@ -153,3 +153,25 @@ exports.receviedPayment = async (body) => {
   await pinTransaction.save();
   return pinTransaction;
 };
+
+exports.phRhCancel = async (body) => {
+  const pinTransactionId = Number(body.id);
+  const pinTransaction = await PinTransaction.findByPk(pinTransactionId);
+  if (!pinTransaction) {
+    throw new ResMessageError("Transaction not found!");
+  }
+  if (pinTransaction.status != "inprogress") {
+    throw new ResMessageError("Contact to admin!");
+  }
+  const help = await Help.findOne({
+    where: {
+      receive_user_id: pinTransaction.receive_user_id
+    }, order: [["created_at", "DESC"]],
+  });
+  help.status = "pending";
+  await help.save();
+  pinTransaction.status = "success";
+  await pinTransaction.save();
+  return pinTransaction;
+};
+
