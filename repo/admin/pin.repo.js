@@ -4,6 +4,7 @@ const { Op, Sequelize, QueryTypes, INTEGER } = require("sequelize");
 const { ResMessageError } = require("../../exceptions/customExceptions");
 const { reject } = require("bluebird");
 const moment = require("moment");
+const pinTransactions = require("../admin/pin_transaction.repo");
 
 exports.pins = (params) => {
   return Pin.paginate(
@@ -119,6 +120,21 @@ exports.updatePin = async (data) => {
   item.status = data.status !== undefined ? data.status : item.status;
   await item.save();
   return item;
+};
+
+exports.deletePin = async (payload, res) => {
+  try {
+    const pinTx = await pinTransactions.getPinTxById(payload.id);
+    if (pinTx.status !== "pending") {
+      throw new ResMessageError("Pin is not pending");
+    }
+    const acLedger = await AcLedger.findOne({ where: { user_id: pinTx.provide_user_id } });
+    const pin = await this.singlePin(pinTx.pin_id);
+    const ss = await acLedger.credit(pin.pin_amount, "prebooking_pin_delete", JSON.parse(JSON.stringify({ ref_no: "" })));
+    return await pinTx.destroy();
+  } catch (e) {
+    throw new ResMessageError(e.message);
+  }
 };
 
 exports.preBookingPin = async (body, res) => {

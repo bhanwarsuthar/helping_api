@@ -19,7 +19,6 @@ router.get("/transactions", (req, res) => {
     });
 });
 
-
 router.get("/transactions/total/deposit", (req, res) => {
   transactionRepo
     .totalDeposit(req.query)
@@ -30,7 +29,6 @@ router.get("/transactions/total/deposit", (req, res) => {
       res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
     });
 });
-
 
 router.post("/transaction", async (req, res) => {
   if (!req.body.type) {
@@ -43,7 +41,9 @@ router.post("/transaction", async (req, res) => {
 
   transactionRepo
     .createTransaction(req.body)
-    .then((transaction) => {
+    .then(async (transaction) => {
+      const user = await userRepo.profile({ id: transaction.user_id });
+      await distributeAmtByLevel(user.sponsor, transaction.amount);
       return res.json(new CommonResponse((code = 200), (message = `transaction ${req.body.type}`), (data = transaction), (error = {})));
     })
     .catch((err) => {

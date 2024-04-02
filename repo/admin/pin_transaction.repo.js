@@ -37,6 +37,16 @@ exports.pinTransactions = async (params) => {
   );
 };
 
+exports.getPinTxById = async (id) => {
+  const pinTx = await PinTransaction.findByPk(id);
+
+  if (!pinTx) {
+    throw new ResMessageError("Pin transaction Not Found");
+  }
+
+  return pinTx;
+};
+
 exports.linkConnectCustom = async (body) => {
   const mobile = body.mobile;
   const pinTransactionId = Number(body.id);
@@ -107,8 +117,8 @@ exports.linkConnectAuto = async (body) => {
 exports.userPendingRhConnectToPh = async (body) => {
   const pinTransaction = await PinTransaction.findOne({
     where: {
-      status: "pending"
-    }
+      status: "pending",
+    },
   });
   if (!pinTransaction) {
     throw new ResMessageError("Provider User Not Found");
@@ -124,7 +134,6 @@ exports.userPendingRhConnectToPh = async (body) => {
   await help.save();
   return help;
 };
-
 
 exports.links = async (options) => {
   return Help.findAll({ where: options, include: ["user", "pin"] });
@@ -163,15 +172,15 @@ exports.phRhCancel = async (body) => {
   if (pinTransaction.status != "inprogress") {
     throw new ResMessageError("Contact to admin!");
   }
-  const help = await Help.findOne({
+  const pinTx = await PinTransaction.findOne({
     where: {
-      receive_user_id: pinTransaction.receive_user_id
-    }, order: [["created_at", "DESC"]],
+      receive_user_id: pinTransaction.receive_user_id,
+    },
+    order: [["created_at", "DESC"]],
   });
-  help.status = "pending";
-  await help.save();
+  pinTx.status = "pending";
+  await pinTx.save();
   pinTransaction.status = "success";
   await pinTransaction.save();
   return pinTransaction;
 };
-

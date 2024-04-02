@@ -144,6 +144,7 @@ exports.list = (params, limit = 10) => {
         },
       },
       include: ["ac_ledgers"],
+      order: [["created_at", "DESC"]],
     },
     params.page
   );

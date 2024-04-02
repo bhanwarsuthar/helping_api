@@ -69,14 +69,17 @@ exports.adminDashboardData = async (req, res) => {
     order: [["start_time", "DESC"]],
   });
 
-  const [eligibleUserCount, nonEligibleUserCount] = await Promise.all([
+  const user = await userRepo.profile({ role: "admin" });
+
+  const [totalUsersBal, eligibleUserCount, nonEligibleUserCount] = await Promise.all([
+    sequelize.query(`SELECT SUM(balance) as n FROM helping_plan.ac_ledgers WHERE id != :adminId`, { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { adminId: user.id } }),
     sequelize.query(
-      `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance >= 500;`,
-      { type: Sequelize.QueryTypes.SELECT, plain: true }
+      `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance >= :pinId;`,
+      { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinId: pin.id } }
     ),
     sequelize.query(
-      `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance < 500;`,
-      { type: Sequelize.QueryTypes.SELECT, plain: true }
+      `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance < :pinId;`,
+      { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinId: pin.id } }
     ),
   ]);
 
@@ -85,10 +88,10 @@ exports.adminDashboardData = async (req, res) => {
       (code = 200),
       (message = "Admin dasbboard data"),
       (data = {
-        total_wallet: +totalBalance.sum,
-        pin_amount: pin?.pin_amount || 0,
-        pin_eligible: eligibleUserCount.n,
-        pin_not_eligible: nonEligibleUserCount.n,
+        total_wallet: +totalUsersBal.n,
+        pin_amount: +pin?.pin_amount || 0,
+        pin_eligible: +eligibleUserCount.n,
+        pin_not_eligible: +nonEligibleUserCount.n,
         transactions_status: {
           success: await getPinTransaction("success"),
           inprogress: await getPinTransaction("inprogress"),
