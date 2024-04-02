@@ -16,7 +16,7 @@ exports.userInsights = async (data) => {
   return Promise.all([
     sequelize.query(
       `
-    SELECT SUM(pin_amount) as total_amount, COUNT(*) as total_count
+    SELECT SUM(provide_help_amount) as total_amount, COUNT(*) as total_count
       FROM pins hp
         JOIN (
           SELECT pin_id
@@ -33,7 +33,7 @@ exports.userInsights = async (data) => {
 
     sequelize.query(
       `
-    SELECT SUM(pin_amount) as total_amount, COUNT(*) as total_count
+    SELECT SUM(receive_help_amount) as total_amount, COUNT(*) as total_count
       FROM pins hp
         JOIN (
           SELECT pin_id
