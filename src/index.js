@@ -9,6 +9,8 @@ const morgan = require("morgan");
 require("../config/database");
 const userRouter = require("../router/user");
 const adminRouter = require("../router/admin");
+const cron = require("node-cron");
+const { expirePinTxs } = require("../utils/cronJob.js");
 require(".././middleware/adminPassport");
 require(".././middleware/userPassport");
 
@@ -66,6 +68,18 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.send(ads);
 });
+
+// Schedule the task to run every day at 7 am IST
+cron.schedule(
+  "00 07 * * *",
+  async () => {
+    await expirePinTxs();
+  },
+  {
+    scheduled: true,
+    timezone: "Asia/Kolkata", // Set the timezone to 'Asia/Kolkata' for IST
+  }
+);
 
 // error handler
 app.use(function (err, req, res, next) {

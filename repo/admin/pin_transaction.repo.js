@@ -165,22 +165,37 @@ exports.receviedPayment = async (body) => {
 
 exports.phRhCancel = async (body) => {
   const pinTransactionId = Number(body.id);
-  const pinTransaction = await PinTransaction.findByPk(pinTransactionId);
-  if (!pinTransaction) {
-    throw new ResMessageError("Transaction not found!");
-  }
-  if (pinTransaction.status != "inprogress") {
-    throw new ResMessageError("Contact to admin!");
-  }
-  const pinTx = await PinTransaction.findOne({
-    where: {
-      receive_user_id: pinTransaction.receive_user_id,
-    },
-    order: [["created_at", "DESC"]],
-  });
-  pinTx.status = "pending";
-  await pinTx.save();
-  pinTransaction.status = "success";
-  await pinTransaction.save();
-  return pinTransaction;
+  const [pinTx] = await this.reverseRhLink([pinTransactionId], "cancel");
+  return pinTx;
+};
+
+exports.phRhExpire = async (pinTxIdsArray) => {
+  await this.reverseRhLink(pinTxIdsArray, "expired");
+};
+
+exports.reverseRhLink = async (pinTxIdsArray, status) => {
+  return await Promise.all(
+    pinTxIdsArray.map(async (pinTxId) => {
+      const pinTransaction = await PinTransaction.findByPk(pinTxId);
+      if (!pinTransaction) {
+        throw new ResMessageError("Transaction not found!");
+      }
+      if (pinTransaction.status != "inprogress") {
+        throw new ResMessageError("Contact to admin!");
+      }
+      const pinTx = await Help.findOne({
+        where: {
+          user_id: pinTransaction.receive_user_id,
+        },
+        order: [["created_at", "DESC"]],
+      });
+      if (pinTx) {
+        pinTx.status = "pending";
+        await pinTx.save();
+      }
+      pinTransaction.status = status;
+      await pinTransaction.save();
+      return pinTransaction;
+    })
+  );
 };
