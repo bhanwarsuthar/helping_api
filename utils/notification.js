@@ -88,8 +88,8 @@ exports.notificationContent = {
       },
     },
     admin: {
-      title: () => "Product Purchase",
-      desc: (userName, userPh) => `${userName} - ${userPh} have just purchased a product`,
+      title: () => "Pin Purchase",
+      desc: (userName, userPh) => `${userName} - ${userPh} have just purchased a pin`,
       data: (id) => {
         return { activity: notificationData.user, id };
       },
@@ -145,8 +145,8 @@ exports.notificationContent = {
   },
   commission: {
     user: {
-      title: () => `Commission Credited`,
-      desc: (amount) => `Your product purchase commission ₹${amount} have credited into your wallet`,
+      title: () => `Level Commission Credited`,
+      desc: (amount) => `Your pin purchase level commission ₹${amount} have credited into your wallet`,
       data: (id) => {
         return { activity: notificationData.commission, id };
       },
@@ -178,7 +178,7 @@ exports.notificationContent = {
   commissionMissedNoPkg: {
     user: {
       title: () => `Commission Missed`,
-      desc: (amount, level) => `Oh! No! You just missed ₹${amount} commission from level - ${level} because you have not purchased any product yet`,
+      desc: (amount, level) => `Oh! No! You just missed ₹${amount} commission from level - ${level} because you have not purchased any pin yet`,
       data: () => {
         return { activity: notificationData.product, id: null };
       },
@@ -241,7 +241,7 @@ exports.notificationContent = {
   },
   sponsor: {
     user: {
-      title: () => "New Referal User",
+      title: () => "New Referral User",
       desc: () => "Congrats! A new user have signed-up with your sponsor code",
       data: () => {
         return { activity: notificationData.level, id: null };
