@@ -70,16 +70,16 @@ app.get("/", (req, res) => {
 });
 
 // Schedule the task to run every day at 7 am IST
-cron.schedule(
-  "00 07 * * *",
-  async () => {
-    await expirePinTxs();
-  },
-  {
-    scheduled: true,
-    timezone: "Asia/Kolkata", // Set the timezone to 'Asia/Kolkata' for IST
-  }
-);
+// cron.schedule(
+//   "00 07 * * *",
+//   async () => {
+//     await expirePinTxs();
+//   },
+//   {
+//     scheduled: true,
+//     timezone: "Asia/Kolkata", // Set the timezone to 'Asia/Kolkata' for IST
+//   }
+// );
 
 // error handler
 app.use(function (err, req, res, next) {
