@@ -106,6 +106,6 @@ app.use(function (err, req, res, next) {
 });
 
 // starting the server
-app.listen(3000, () => {
+app.listen(3002, () => {
   console.log("listening on port 3002");
 });
