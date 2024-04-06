@@ -25,7 +25,9 @@ exports.transactions = (params) => {
   }
   if (params?.order) {
     const filter = JSON.parse(params.order);
-    userSearch.id = filter.user_id;
+    if (filter.user_id) {
+      userSearch.id = filter.user_id;
+    }
   }
   console.log(userSearch);
   return Transactions.paginate(
@@ -38,7 +40,7 @@ exports.transactions = (params) => {
           where: userSearch,
         },
       ],
-      order: [["created_at", "ASC"]],
+      order: [["created_at", "DESC"]],
     },
     params?.page || 1
   );
