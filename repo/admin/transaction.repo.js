@@ -6,7 +6,6 @@ const { CommonData } = require("../../models");
 const { notifyUser, notificationContent } = require("../../utils/notification");
 
 exports.transactions = (params) => {
-  console.log("ssssssssssss", params);
   let userSearch = {};
   if (params?.search) {
     userSearch = {
@@ -24,6 +23,11 @@ exports.transactions = (params) => {
       ],
     };
   }
+  if (params?.order) {
+    const filter = JSON.parse(params.order);
+    userSearch.id = filter.user_id;
+  }
+  console.log(userSearch);
   return Transactions.paginate(
     parseInt(params?.limit) || 10,
     {
@@ -34,7 +38,7 @@ exports.transactions = (params) => {
           where: userSearch,
         },
       ],
-      order: [["created_at", "DESC"]],
+      order: [["created_at", "ASC"]],
     },
     params?.page || 1
   );
