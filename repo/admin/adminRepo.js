@@ -71,17 +71,24 @@ exports.adminDashboardData = async (req, res) => {
 
   const user = await userRepo.profile({ role: "admin" });
 
-  const [totalUsersBal, eligibleUserCount, nonEligibleUserCount] = await Promise.all([
-    sequelize.query(`SELECT SUM(balance) as n FROM helping_plan.ac_ledgers WHERE id != :adminId`, { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { adminId: user.id } }),
-    sequelize.query(
-      `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance >= :pinAmount;`,
-      { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
-    ),
-    sequelize.query(
-      `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance < :pinAmount;`,
-      { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
-    ),
-  ]);
+  const totalUsersBal = await sequelize.query(`SELECT SUM(balance) as n FROM helping_plan.ac_ledgers WHERE id != :adminId`, {
+    type: Sequelize.QueryTypes.SELECT,
+    plain: true,
+    replacements: { adminId: user.id },
+  });
+
+  if (pin) {
+    var [eligibleUserCount, nonEligibleUserCount] = await Promise.all([
+      sequelize.query(
+        `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance >= :pinAmount;`,
+        { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
+      ),
+      sequelize.query(
+        `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance < :pinAmount;`,
+        { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
+      ),
+    ]);
+  }
 
   res.status(200).json(
     new CommonResponse(
@@ -90,8 +97,8 @@ exports.adminDashboardData = async (req, res) => {
       (data = {
         total_wallet: +totalUsersBal.n,
         pin_amount: +pin?.pin_amount || 0,
-        pin_eligible: +eligibleUserCount.n,
-        pin_not_eligible: +nonEligibleUserCount.n,
+        pin_eligible: +eligibleUserCount?.n || 0,
+        pin_not_eligible: +nonEligibleUserCount?.n || 0,
         transactions_status: {
           success: await getPinTransaction("success"),
           inprogress: await getPinTransaction("inprogress"),
