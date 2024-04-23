@@ -75,11 +75,11 @@ exports.adminDashboardData = async (req, res) => {
     sequelize.query(`SELECT SUM(balance) as n FROM helping_plan.ac_ledgers WHERE id != :adminId`, { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { adminId: user.id } }),
     sequelize.query(
       `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance >= :pinAmount;`,
-      { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin.pin_amount } }
+      { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
     ),
     sequelize.query(
       `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance < :pinAmount;`,
-      { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin.pin_amount } }
+      { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
     ),
   ]);
 
