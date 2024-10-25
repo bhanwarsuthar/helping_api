@@ -131,6 +131,11 @@ exports.list = (params, limit = 10) => {
             [Op.like]: `%${params?.search || ""}%`,
           },
         },
+        {
+          sponsor: {
+            [Op.like]: `%${params?.search || ""}%`,
+          },
+        },
       ],
     };
   }

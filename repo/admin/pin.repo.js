@@ -130,7 +130,8 @@ exports.deletePin = async (payload, res) => {
     }
     const acLedger = await AcLedger.findOne({ where: { user_id: pinTx.provide_user_id } });
     const pin = await this.singlePin(pinTx.pin_id);
-    const ss = await acLedger.credit(pin.pin_amount, "prebooking_pin_delete", JSON.parse(JSON.stringify({ ref_no: "" })));
+    await acLedger.credit(pin.pin_amount, "prebooking_pin_delete", JSON.parse(JSON.stringify({ ref_no: "" })));
+    await pin.increment("remaining_count");
     return await pinTx.destroy();
   } catch (e) {
     throw new ResMessageError(e.message);
@@ -162,7 +163,7 @@ exports.preBookingPin = async (body, res) => {
   /**
    * this condition for check pin availablity and user wallet amount
    */
-  if (pin.remaining_count < Number(quantity)) {
+  if (pin.remaining_count <= Number(quantity)) {
     throw new ResMessageError(`${quantity} Quantity not available`);
   }
   if (Number(user.ac_ledgers[0].balance) < Number(pin.pin_amount) * Number(quantity)) {
