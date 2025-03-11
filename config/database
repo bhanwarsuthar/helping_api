@@ -3,7 +3,7 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve("./") + "/.env" });
 const { DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME } = process.env;
 const sequelize = new Sequelize(DB_NAME, DB_USERNAME, DB_PASSWORD, {
-  host: "localhost",
+  host: DB_HOST,
   dialect: "mysql",
   logging: false,
 });

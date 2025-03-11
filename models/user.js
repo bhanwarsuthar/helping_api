@@ -53,6 +53,7 @@ module.exports = (sequelize, DataTypes) => {
       status: { type: DataTypes.STRING, defaultValue: "active" },
       mobile_verified_at: { type: DataTypes.DATE },
       email_verified_at: { type: DataTypes.DATE },
+      direct_user_count: { type: DataTypes.INTEGER, defaultValue: 0 },
     },
     {
       sequelize,
@@ -82,6 +83,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     });
 
+
     const AcLedger = sequelize.models.AcLedger;
     const ac_ldeger = await AcLedger.create({
       user_id: user.id,
@@ -100,6 +102,24 @@ module.exports = (sequelize, DataTypes) => {
       notation: "register_bonus",
       meta: JSON.parse(JSON.stringify({ ref_no: "" })),
     });
+
+
+    const sponsor_bonus = await CommonData.findOne({
+      where: {
+        key: "SPONSOR_BONUS",
+      },
+    });
+
+    var sponsorUser = await User.findOne({
+      where: { mobile: user.sponsor },
+      include: {
+        model: AcLedger,
+        as: "ac_ledgers",
+        where: { slug: "cash-wallet" },
+      },
+    });
+
+    await sponsorUser.ac_ledgers[0].credit(sponsor_bonus.data, "sponsor_bonus", JSON.parse(JSON.stringify({ ref_no: "" })))
 
     // await AcLedger.create({
     //   user_id: user.id,

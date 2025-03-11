@@ -100,4 +100,15 @@ router.post("/pin/prebooking", (req, res) => {
     });
 });
 
+router.delete("/pin/prebooking/:id", (req, res) => {
+  pinRepo
+    .deletePin(req.params)
+    .then((pin) => {
+      res.json(new CommonResponse((code = 200), (message = "Pin Purchase deleted sucessfully"), (data = pin)));
+    })
+    .catch((err) => {
+      res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
+
 module.exports = router;

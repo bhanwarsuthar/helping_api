@@ -4,6 +4,7 @@ const sequelize = require("sequelize");
 const { PinTransaction } = require("../../models");
 const pintTransactionRepo = require("../../repo/admin/pin_transaction.repo");
 const { CommonResponse } = require("../../response/successResponse");
+const { Auth } = require("../../middleware/jwt_auth");
 
 router.get("/pin/transactions", (req, res) => {
   pintTransactionRepo
@@ -54,6 +55,28 @@ router.post("/received/payment", (req, res) => {
     .receviedPayment(req.body)
     .then((pinTransactions) => {
       res.json(new CommonResponse((code = 200), (message = "Payment Received"), (data = pinTransactions)));
+    })
+    .catch((err) => {
+      res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
+
+router.post("/ph/rh/cancel", (req, res) => {
+  pintTransactionRepo
+    .phRhCancel(req.body)
+    .then((pinTransactions) => {
+      res.json(new CommonResponse((code = 200), (message = "Successfully cancel"), (data = pinTransactions)));
+    })
+    .catch((err) => {
+      res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
+
+router.post("/user/pending/rh/connect/ph", (req, res) => {
+  pintTransactionRepo
+    .userPendingRhConnectToPh(req.body)
+    .then((pinTransactions) => {
+      res.json(new CommonResponse((code = 200), (message = "Links Connected successfully"), (data = pinTransactions)));
     })
     .catch((err) => {
       res.status(400).json(new CommonResponse((code = 400), (message = err.message)));

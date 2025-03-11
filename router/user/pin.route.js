@@ -3,6 +3,7 @@ const router = express.Router();
 const pinRepo = require("../../repo/user/pin.repo");
 const { CommonResponse } = require("../../response/successResponse");
 const { Auth } = require("../../middleware/jwt_auth");
+const { notifyUser, notificationContent } = require("../../utils/notification");
 
 router.get("/single/pin", Auth, (req, res) => {
   pinRepo
@@ -19,6 +20,7 @@ router.post("/buy/pin", Auth, (req, res) => {
   pinRepo
     .buyPin(req.body.pin_id, req.user.id, res)
     .then((pin) => {
+      notifyUser(notificationContent.buyProduct.user.desc(), notificationContent.buyProduct.user.title(), req.user.id, notificationContent.buyProduct.user.data());
       res.json(new CommonResponse((code = 200), (message = "Pin Purchase sucessfully"), (data = pin)));
     })
     .catch((err) => {

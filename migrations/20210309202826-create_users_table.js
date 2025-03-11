@@ -63,6 +63,7 @@ module.exports = {
           defaultValue: 0,
           allowNull: false,
         },
+        direct_user_count: { type: Sequelize.INTEGER, defaultValue: 0 },
         created_at: {
           type: Sequelize.DATE,
         },

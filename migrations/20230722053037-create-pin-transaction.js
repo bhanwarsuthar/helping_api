@@ -1,32 +1,32 @@
-'use strict';
+"use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('pin_transactions', {
+    await queryInterface.createTable("pin_transactions", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.BIGINT.UNSIGNED
+        type: Sequelize.BIGINT.UNSIGNED,
       },
       provide_user_id: {
         type: Sequelize.BIGINT.UNSIGNED,
-        allowNull: true
+        allowNull: true,
       },
       receive_user_id: {
         type: Sequelize.BIGINT.UNSIGNED,
-        allowNull: true
+        allowNull: true,
       },
       pin_id: {
         type: Sequelize.BIGINT.UNSIGNED,
-        allowNull: true
+        allowNull: true,
       },
-      status: Sequelize.ENUM(["success","pending","inprogress","cancel"]),
+      status: Sequelize.ENUM(["success", "pending", "inprogress", "cancel", "expired"]),
       created_at: Sequelize.DATE,
-      updated_at: Sequelize.DATE
+      updated_at: Sequelize.DATE,
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('pin_transactions');
-  }
+    await queryInterface.dropTable("pin_transactions");
+  },
 };

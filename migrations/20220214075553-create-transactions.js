@@ -1,4 +1,7 @@
 "use strict";
+
+const { AvailableTxNotations } = require("../constants");
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable("ac_ledger_transactions", {
@@ -34,7 +37,7 @@ module.exports = {
       },
       amount: Sequelize.DECIMAL(10, 2),
       tx_type: Sequelize.ENUM(["debit", "credit", "pending", "reject"]),
-      notation: Sequelize.STRING(255),
+      notation: Sequelize.ENUM(AvailableTxNotations),
       meta: Sequelize.JSON,
       created_at: {
         allowNull: false,
