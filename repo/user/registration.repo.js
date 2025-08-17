@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const otpService = require("../../services/otp/otp.service");
 const login = require("./login.repo");
 
-var private_key = fs.readFileSync(path.resolve(__dirname, "../../private.key"), "utf-8");
+var private_key = fs.readFileSync(path.resolve(__dirname, "../../private.pem"), "utf-8");
 
 exports.send_otp_new_user = async (req, res) => {
   let checkUser = await User.findOne({ where: { mobile: req.body.mobile } });

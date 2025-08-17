@@ -3,7 +3,7 @@ var JwtStrategy = require('passport-jwt').Strategy,
 const path = require('path');
 var { Admin } = require('../models');
 var fs = require('fs');
-var public_key = fs.readFileSync(path.resolve(__dirname, '../public.key'),'utf-8');
+var public_key = fs.readFileSync(path.resolve(__dirname, '../public.pem'), 'utf-8');
 var passport = require('passport');
 
 var opts = {}
@@ -12,10 +12,10 @@ opts.secretOrKey = public_key;
 opts.algorithem = ["RS256"];
 
 passport.use(
-    'admin-jwt', 
-    new JwtStrategy(opts, function(jwt_payload, done) {
+    'admin-jwt',
+    new JwtStrategy(opts, function (jwt_payload, done) {
         Admin.findOne({
-            where: {id : jwt_payload.sub},
+            where: { id: jwt_payload.sub },
         }).then(user => {
             if (user) {
                 return done(null, user);

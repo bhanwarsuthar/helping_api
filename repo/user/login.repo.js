@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const otpService = require("../../services/otp/otp.service");
 const userRepo = require("./user.repo");
 
-var private_key = fs.readFileSync(path.resolve(__dirname, "../../private.key"), "utf-8");
+var private_key = fs.readFileSync(path.resolve(__dirname, "../../private.pem"), "utf-8");
 // POST /login_basic
 exports.login_with_password = async (req, res) => {
   User.findOne({

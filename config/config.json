@@ -1,22 +1,22 @@
 {
   "development": {
     "username": "root",
-    "password": "1847",
-    "database": "helping_plan",
+    "password": "A12345678",
+    "database": "angel_help",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": null,
-    "database": "helping_plan_test",
+    "password": "A12345678",
+    "database": "angel_help_test",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": null,
-    "database": "helping_plan_production",
+    "password": "A12345678",
+    "database": "angel_help_production",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }

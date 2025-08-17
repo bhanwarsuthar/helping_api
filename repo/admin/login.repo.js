@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 
-var private_key = fs.readFileSync(path.resolve(__dirname, "../../private.key"), "utf-8");
+var private_key = fs.readFileSync(path.resolve(__dirname, "../../private.pem"), "utf-8");
 // POST /login_basic
 exports.login_with_password = async (req, res) => {
   User.findOne({ where: { mobile: req.body.mobile } })
