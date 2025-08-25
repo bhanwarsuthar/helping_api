@@ -84,8 +84,8 @@ exports.adminDashboardData = async (req, res) => {
       (data = {
         total_wallet: +totalBalance.sum,
         pin_amount: pin?.pin_amount || 0,
-        pin_eligible: await getEligibility({ [Op.gte]: pin?.pin_amoun || 0 }),
-        pin_not_eligible: await getEligibility({ [Op.lte]: pin?.pin_amoun || 0 }),
+        pin_eligible: await getEligibility({ [Op.gte]: pin?.pin_amount || 0 }),
+        pin_not_eligible: await getEligibility({ [Op.lte]: pin?.pin_amount || 0 }),
         transactions_status: {
           success: await getPinTransaction("success"),
           inprogress: await getPinTransaction("inprogress"),
