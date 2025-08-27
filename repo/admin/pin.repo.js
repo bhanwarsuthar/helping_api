@@ -4,6 +4,7 @@ const { Op, Sequelize, QueryTypes, INTEGER } = require("sequelize");
 const { ResMessageError } = require("../../exceptions/customExceptions");
 const { reject } = require("bluebird");
 const moment = require("moment");
+const pinTransactions = require("../admin/pin_transaction.repo");
 
 exports.pins = (params) => {
   return Pin.paginate(
@@ -121,6 +122,22 @@ exports.updatePin = async (data) => {
   return item;
 };
 
+exports.deletePin = async (payload, res) => {
+  try {
+    const pinTx = await pinTransactions.getPinTxById(payload.id);
+    if (pinTx.status !== "pending") {
+      throw new ResMessageError("Pin is not pending");
+    }
+    const acLedger = await AcLedger.findOne({ where: { user_id: pinTx.provide_user_id } });
+    const pin = await this.singlePin(pinTx.pin_id);
+    await acLedger.credit(pin.pin_amount, "prebooking_pin_delete", JSON.parse(JSON.stringify({ ref_no: "" })));
+    await pin.increment("remaining_count");
+    return await pinTx.destroy();
+  } catch (e) {
+    throw new ResMessageError(e.message);
+  }
+};
+
 exports.preBookingPin = async (body, res) => {
   const mobileNumber = body.mobile;
   const pinId = body.pin_id;
@@ -146,7 +163,7 @@ exports.preBookingPin = async (body, res) => {
   /**
    * this condition for check pin availablity and user wallet amount
    */
-  if (pin.remaining_count < Number(quantity)) {
+  if (pin.remaining_count <= Number(quantity)) {
     throw new ResMessageError(`${quantity} Quantity not available`);
   }
   if (Number(user.ac_ledgers[0].balance) < Number(pin.pin_amount) * Number(quantity)) {

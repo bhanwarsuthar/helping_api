@@ -1,6 +1,9 @@
 "use strict";
 const { QueryTypes } = require("sequelize");
 const { BaseModel } = require("./base_models/BaseModel");
+// const { distributeAmtByLevel } = require("../utils/leveldistribution");
+const userRepo = require("../repo/user/user.repo");
+const { notifyUser, notificationContent } = require("../utils/notification");
 
 module.exports = (sequelize, DataTypes) => {
   class AcLedger extends BaseModel {
@@ -76,6 +79,12 @@ module.exports = (sequelize, DataTypes) => {
       );
       this.balance = qry.balance;
       this.save();
+      notifyUser(
+        notificationContent.transactionReject.user.desc(tx.notation, tx.amount),
+        notificationContent.transactionReject.user.title(tx.notation),
+        tx.user_id,
+        notificationContent.transactionReject.user.data()
+      );
       return tx;
     }
 

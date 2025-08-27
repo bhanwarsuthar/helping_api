@@ -1,4 +1,4 @@
-const { Pin, User, AcLedger, PinTransaction, Media, Team, History, sequelize, Help } = require("../../models");
+const { Pin, User, AcLedger, PinTransaction, Team, History, sequelize, Help } = require("../../models");
 const fs = require("fs");
 const { Op, Sequelize, QueryTypes, INTEGER } = require("sequelize");
 const { ResMessageError } = require("../../exceptions/customExceptions");
@@ -6,39 +6,72 @@ const { reject } = require("bluebird");
 const moment = require("moment");
 
 exports.pinTransactions = async (query) => {
-  if (query.order) {
-    query.order = JSON.parse(query?.order);
-  }
-  var whereCondition = query?.order;
+  const page = +query.page || 1;
+  const limit = +query.limit || 10;
 
-  console.log(query);
+  delete query.page;
+  delete query.limit;
+
+  if (query.order) {
+    var where = JSON.parse(query?.order);
+  }
+
   return PinTransaction.paginate(
-    parseInt(query?.limit) || 10,
+    limit,
     {
       order: [["created_at", "DESC"]],
-      where: whereCondition,
+      where: where,
       include: [
         {
           model: User,
           as: "provide",
+          required: false,
         },
         {
           model: User,
           as: "receive",
+          required: false,
         },
         {
           model: Pin,
           as: "pin",
+          required: false,
         },
       ],
     },
-    query?.page || 1
+    page
   );
+};
+
+exports.getPinTransactionById = async (id) => {
+  return PinTransaction.findByPk(id, {
+    include: [
+      {
+        model: User,
+        as: "provide",
+        required: false,
+      },
+      {
+        model: User,
+        as: "receive",
+        required: false,
+      },
+      {
+        model: Pin,
+        as: "pin",
+        required: false,
+      },
+    ],
+  });
+};
+
+exports.links = async (options) => {
+  return Help.findAll({ where: options, include: ["user", "pin"] });
 };
 
 exports.receviedPayment = async (body) => {
   const pinTransactionId = +body.id;
-  const pinTransaction = await PinTransaction.findByPk(pinTransactionId);
+  const pinTransaction = await this.getPinTransactionById(pinTransactionId);
   if (!pinTransaction) {
     throw new ResMessageError("Transaction not found!");
   }

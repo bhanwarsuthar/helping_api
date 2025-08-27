@@ -1,6 +1,5 @@
-const { Op } = require("sequelize");
 const Sequelize = require("sequelize");
-const { AcLedger, PinTransaction, User, Pin } = require("../../models");
+const { AcLedger, PinTransaction, User, Pin, sequelize } = require("../../models");
 
 const pintTransactionRepo = require("../../repo/admin/pin_transaction.repo");
 const userRepo = require("../../repo/user/user.repo.js");
@@ -16,6 +15,10 @@ exports.users = async (req, res) => {
       console.log(error);
       res.status(400).json({ message: "Something went wrong." });
     });
+};
+
+exports.get_user = (mobile) => {
+  return User.findOne({ where: { mobile }, include: ["ac_ledgers"] });
 };
 
 exports.block_user = (req, res) => {
@@ -48,17 +51,6 @@ exports.getPinTransByUserId = async (req, res) => {
 
 // --- //
 
-const getEligibility = async (filter) => {
-  const { count } = await AcLedger.findOne({
-    where: {
-      balance: filter,
-    },
-    attributes: [[Sequelize.fn("COUNT", Sequelize.col("user_id")), "count"]],
-    raw: true,
-  });
-  return count;
-};
-
 const getPinTransaction = async (status) => {
   const { count } = await PinTransaction.findOne({ where: { status }, attributes: [[Sequelize.fn("COUNT", Sequelize.col("id")), "count"]], raw: true });
 
@@ -77,15 +69,36 @@ exports.adminDashboardData = async (req, res) => {
     order: [["start_time", "DESC"]],
   });
 
+  const user = await userRepo.profile({ role: "admin" });
+
+  const totalUsersBal = await sequelize.query(`SELECT SUM(balance) as n FROM helping_plan.ac_ledgers WHERE id != :adminId`, {
+    type: Sequelize.QueryTypes.SELECT,
+    plain: true,
+    replacements: { adminId: user.id },
+  });
+
+  if (pin) {
+    var [eligibleUserCount, nonEligibleUserCount] = await Promise.all([
+      sequelize.query(
+        `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance >= :pinAmount;`,
+        { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
+      ),
+      sequelize.query(
+        `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance < :pinAmount;`,
+        { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
+      ),
+    ]);
+  }
+
   res.status(200).json(
     new CommonResponse(
       (code = 200),
       (message = "Admin dasbboard data"),
       (data = {
-        total_wallet: +totalBalance.sum,
-        pin_amount: pin?.pin_amount || 0,
-        pin_eligible: await getEligibility({ [Op.gte]: pin?.pin_amount || 0 }),
-        pin_not_eligible: await getEligibility({ [Op.lte]: pin?.pin_amount || 0 }),
+        total_wallet: +totalUsersBal.n,
+        pin_amount: +pin?.pin_amount || 0,
+        pin_eligible: +eligibleUserCount?.n || 0,
+        pin_not_eligible: +nonEligibleUserCount?.n || 0,
         transactions_status: {
           success: await getPinTransaction("success"),
           inprogress: await getPinTransaction("inprogress"),

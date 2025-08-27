@@ -17,6 +17,12 @@ router.get("/pin/transactions", Auth, (req, res) => {
     });
 });
 
+router.get("/links", Auth, (req, res) => {
+  pintTransactionRepo.links(req.query).then((links) => {
+    res.status(200).json(new CommonResponse((code = 200), (message = "links fetched"), (data = links)));
+  });
+});
+
 router.post("/received/payment", Auth, (req, res) => {
   pintTransactionRepo
     .receviedPayment(req.body)

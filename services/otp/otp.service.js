@@ -1,6 +1,8 @@
 const { OtpNotification } = require("../../notifications/otp.notification");
 const { Otp } = require("../../models");
 const { Op } = require("sequelize");
+const moment = require("moment");
+
 // send notification
 exports.sendOtp = async (user = null, props) => {
   code = props.code ?? ("0000" + Math.floor(Math.random() * 1000000 + 1)).slice(-6);
@@ -9,7 +11,7 @@ exports.sendOtp = async (user = null, props) => {
     code: code,
     send_via: "sms",
     send_to: props.mobile,
-    expire_on: new Date(new Date().getTime() + 15 * 60000),
+    expire_on: moment().local().add(10, "minutes"),
   });
   new OtpNotification({ mobile: props.mobile, code: code }).send();
   return otp;
@@ -25,21 +27,21 @@ exports.verifyOtp = async (user = null, props) => {
     code: props.code,
     send_to: props.send_to,
     send_via: props.send_via || "sms",
-    expire_on: { [Op.gte]: new Date() },
   };
   if (user) {
     where["user_id"] = user.id;
   }
 
-  if (props.code == "345267") {
-    return true;
-  }
+  // if (props.code == "345267") {
+  //   return true;
+  // }
 
   return Otp.findOne({
     where: where,
   })
     .then((otp) => {
-      return otp ? true : false;
+      if (!otp || moment(otp?.expire_on).local() <= moment().local()) return false;
+      return true;
     })
     .catch((err) => {
       return false;
