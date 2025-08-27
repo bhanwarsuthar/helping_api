@@ -71,7 +71,7 @@ exports.adminDashboardData = async (req, res) => {
 
   const user = await userRepo.profile({ role: "admin" });
 
-  const totalUsersBal = await sequelize.query(`SELECT SUM(balance) as n FROM helping_plan.ac_ledgers WHERE id != :adminId`, {
+  const totalUsersBal = await sequelize.query(`SELECT SUM(balance) as n FROM ac_ledgers WHERE id != :adminId`, {
     type: Sequelize.QueryTypes.SELECT,
     plain: true,
     replacements: { adminId: user.id },
@@ -80,11 +80,11 @@ exports.adminDashboardData = async (req, res) => {
   if (pin) {
     var [eligibleUserCount, nonEligibleUserCount] = await Promise.all([
       sequelize.query(
-        `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance >= :pinAmount;`,
+        `SELECT COUNT(*) as n FROM users LEFT JOIN ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance >= :pinAmount;`,
         { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
       ),
       sequelize.query(
-        `SELECT COUNT(*) as n FROM helping_plan.users LEFT JOIN helping_plan.ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance < :pinAmount;`,
+        `SELECT COUNT(*) as n FROM users LEFT JOIN ac_ledgers ON users.id = ac_ledgers.user_id WHERE users.status = 'active' AND role = 'user' AND balance < :pinAmount;`,
         { type: Sequelize.QueryTypes.SELECT, plain: true, replacements: { pinAmount: pin?.pin_amount } }
       ),
     ]);
