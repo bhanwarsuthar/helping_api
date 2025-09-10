@@ -74,6 +74,8 @@ exports.approveTransactions = async (data) => {
     .then(([approveUserTransaction]) => {
       return new Promise(async (resolve, reject) => {
         if (!approveUserTransaction) return reject("Unable to update cash wallet");
+
+
         resolve(approveUserTransaction);
       });
     })
@@ -99,6 +101,39 @@ exports.rejectTransactions = async (data) => {
     .then(([rejectUserTransaction]) => {
       return new Promise(async (resolve, reject) => {
         if (!rejectUserTransaction) return reject("Unable to update cash wallet");
+
+        let level_distro = await CommonData.findOne({
+          where: {
+            key: "LEVEL_DISTRIBUTION",
+          },
+        });
+
+        level_distro = JSON.parse(level_distro.data);
+
+        var levelDistributionKeyList = Object.keys(level_distro);
+        levelDistributionKeyList.sort((a, b) => a - b);
+
+        for (let index = 0; index < levelDistributionKeyList.length; index++) {
+          const levelDistroKey = levelDistributionKeyList[index];
+          const nextUser = await User.findOne({
+            where: { referral_code: user.sponsor },
+            include: {
+              model: AcLedger,
+              as: "ac_ledgers",
+              where: { slug: "cash-wallet" },
+            },
+          });
+
+          if (!nextUser || !nextUser?.ac_ledgers || nextUser?.ac_ledgers.length == 0) {
+            break;
+          }
+
+          await nextUser.ac_ledgers[0].credit(parseFloat((data.amount * level_distro[levelDistroKey]) / 100), "level_distribution", { ref_no: "", level: levelDistroKey });
+
+          user.sponsor = nextUser.sponsor;
+        }
+
+
         resolve(rejectUserTransaction);
       });
     })
@@ -126,36 +161,36 @@ exports.createTransaction = async (data) => {
   if (data.type === "credit") {
     var referralUserTransaction = await user.ac_ledgers[0].credit(parseInt(data.amount), "admin", metaUser);
 
-    let level_distro = await CommonData.findOne({
-      where: {
-        key: "LEVEL_DISTRIBUTION",
-      },
-    });
+    // let level_distro = await CommonData.findOne({
+    //   where: {
+    //     key: "LEVEL_DISTRIBUTION",
+    //   },
+    // });
 
-    level_distro = JSON.parse(level_distro.data);
+    // level_distro = JSON.parse(level_distro.data);
 
-    var levelDistributionKeyList = Object.keys(level_distro);
-    levelDistributionKeyList.sort((a, b) => a - b);
+    // var levelDistributionKeyList = Object.keys(level_distro);
+    // levelDistributionKeyList.sort((a, b) => a - b);
 
-    for (let index = 0; index < levelDistributionKeyList.length; index++) {
-      const levelDistroKey = levelDistributionKeyList[index];
-      const nextUser = await User.findOne({
-        where: { referral_code: user.sponsor },
-        include: {
-          model: AcLedger,
-          as: "ac_ledgers",
-          where: { slug: "cash-wallet" },
-        },
-      });
+    // for (let index = 0; index < levelDistributionKeyList.length; index++) {
+    //   const levelDistroKey = levelDistributionKeyList[index];
+    //   const nextUser = await User.findOne({
+    //     where: { referral_code: user.sponsor },
+    //     include: {
+    //       model: AcLedger,
+    //       as: "ac_ledgers",
+    //       where: { slug: "cash-wallet" },
+    //     },
+    //   });
 
-      if (!nextUser || !nextUser?.ac_ledgers || nextUser?.ac_ledgers.length == 0) {
-        break;
-      }
+    //   if (!nextUser || !nextUser?.ac_ledgers || nextUser?.ac_ledgers.length == 0) {
+    //     break;
+    //   }
 
-      await nextUser.ac_ledgers[0].credit(parseFloat((data.amount * level_distro[levelDistroKey]) / 100), "level_distribution", { ref_no: "", level: levelDistroKey });
+    //   await nextUser.ac_ledgers[0].credit(parseFloat((data.amount * level_distro[levelDistroKey]) / 100), "level_distribution", { ref_no: "", level: levelDistroKey });
 
-      user.sponsor = nextUser.sponsor;
-    }
+    //   user.sponsor = nextUser.sponsor;
+    // }
     notifyUser(
       notificationContent.amtCr.user.desc(referralUserTransaction.amount, false),
       notificationContent.amtCr.user.title(false ? "Reward Credited" : "Amount Credited"),
