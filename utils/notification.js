@@ -146,7 +146,7 @@ exports.notificationContent = {
   commission: {
     user: {
       title: () => `Level Commission Credited`,
-      desc: (amount) => `Your pin purchase level commission ₹${amount} have credited into your wallet`,
+      desc: (amount) => `Your Level commission ₹${amount} have credited into your wallet`,
       data: (id) => {
         return { activity: notificationData.commission, id };
       },
