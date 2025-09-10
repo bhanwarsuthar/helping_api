@@ -9,8 +9,9 @@ exports.distributeAmtByLevel = async (phoneNumber, amount) => {
 
   for (const { level, percentage } of levels) {
     const user = await userRepo.profile({ mobile: phoneNumber });
+    console.log("user:", user);
 
-    if (hasLevelDistributionToDirectUser.data === "true" || false) {
+    if (hasLevelDistributionToDirectUser?.data === "true" || false) {
       if (user.direct_user_count >= level) {
         await sendLevelDistribution(user, (amount / 100) * percentage, level);
 

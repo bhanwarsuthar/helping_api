@@ -43,7 +43,7 @@ router.post("/transaction", async (req, res) => {
     .createTransaction(req.body)
     .then(async (transaction) => {
       const user = await userRepo.profile({ id: transaction.user_id });
-      await distributeAmtByLevel(user.sponsor, transaction.amount);
+      // await distributeAmtByLevel(user.sponsor, transaction.amount);
       return res.json(new CommonResponse((code = 200), (message = `transaction ${req.body.type}`), (data = transaction), (error = {})));
     })
     .catch((err) => {
