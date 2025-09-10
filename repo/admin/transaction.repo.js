@@ -75,33 +75,6 @@ exports.approveTransactions = async (data) => {
       return new Promise(async (resolve, reject) => {
         if (!approveUserTransaction) return reject("Unable to update cash wallet");
 
-
-        resolve(approveUserTransaction);
-      });
-    })
-    .catch((err) => {
-      throw new Error(err.message);
-    });
-};
-
-exports.rejectTransactions = async (data) => {
-  var user = await User.findOne({
-    where: { mobile: data.mobile },
-    include: {
-      model: AcLedger,
-      as: "ac_ledgers",
-      where: { slug: "cash-wallet" },
-    },
-  });
-  if (!user) {
-    return new ResMessageError("User Not Found");
-  }
-  var rejectUserTransaction = user.ac_ledgers[0].reject(data.id);
-  return Promise.all([rejectUserTransaction])
-    .then(([rejectUserTransaction]) => {
-      return new Promise(async (resolve, reject) => {
-        if (!rejectUserTransaction) return reject("Unable to update cash wallet");
-
         let level_distro = await CommonData.findOne({
           where: {
             key: "LEVEL_DISTRIBUTION",
@@ -132,8 +105,31 @@ exports.rejectTransactions = async (data) => {
 
           user.sponsor = nextUser.sponsor;
         }
+        resolve(approveUserTransaction);
+      });
+    })
+    .catch((err) => {
+      throw new Error(err.message);
+    });
+};
 
-
+exports.rejectTransactions = async (data) => {
+  var user = await User.findOne({
+    where: { mobile: data.mobile },
+    include: {
+      model: AcLedger,
+      as: "ac_ledgers",
+      where: { slug: "cash-wallet" },
+    },
+  });
+  if (!user) {
+    return new ResMessageError("User Not Found");
+  }
+  var rejectUserTransaction = user.ac_ledgers[0].reject(data.id);
+  return Promise.all([rejectUserTransaction])
+    .then(([rejectUserTransaction]) => {
+      return new Promise(async (resolve, reject) => {
+        if (!rejectUserTransaction) return reject("Unable to update cash wallet");
         resolve(rejectUserTransaction);
       });
     })
