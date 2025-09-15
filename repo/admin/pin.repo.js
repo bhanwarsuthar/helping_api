@@ -25,7 +25,7 @@ exports.preBookingPins = async (params) => {
   return PinTransaction.paginate(
     parseInt(params?.limit) || 10,
     {
-      order: [["created_at", "DESC"]],
+      // order: [["created_at", "DESC"]],
       where: {
         pin_id: activeReleasePin.id,
         created_at: {
