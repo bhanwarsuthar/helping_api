@@ -3,30 +3,39 @@ const { Model } = require("sequelize");
 
 class BaseModel extends Model {
   static async paginate(limit, conditions = {}, page = 1) {
-    limit = Number(limit);
-    if (limit > 50) {
-      limit = 50;
-    }
+    // Ensure limit is valid
+    limit = Math.min(Number(limit) || 10, 50);
 
-    let offset = page * limit;
+    // Calculate offset properly
+    const offset = (page - 1) * limit;
 
-    var options = Object.assign(conditions, { offset: offset - limit, limit: limit });
+    // Merge conditions safely (no mutation)
+    const options = Object.assign({}, conditions, { offset, limit });
 
-    var result;
+    let result;
     try {
       result = await this.findAndCountAll(options);
     } catch (err) {
-      console.log("error", err);
+      console.error("Pagination error:", err);
+      return {
+        meta: {
+          page_size: limit,
+          total: 0,
+          current_page: page,
+          last_page: 1,
+          total_pages: 1,
+        },
+        rows: [],
+      };
     }
-    let last_page = result?.count / limit;
-    last_page = last_page > 0 ? Math.ceil(last_page) : 1;
+    const last_page = Math.max(1, Math.ceil(result.count / limit));
 
     return {
       meta: {
         page_size: limit,
         total: result.count,
         current_page: parseInt(page),
-        last_page: last_page,
+        last_page,
         total_pages: last_page,
       },
       rows: result.rows,
