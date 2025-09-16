@@ -16,7 +16,6 @@ exports.pinTransactions = async (params) => {
   return PinTransaction.paginate(
     parseInt(params?.limit) || 10,
     {
-      order: [["created_at", "DESC"]],
       where: whereCondition,
       include: [
         {
@@ -32,8 +31,9 @@ exports.pinTransactions = async (params) => {
           as: "pin",
         },
       ],
+      // order: [["created_at", "DESC"]],
     },
-    params?.page || 1
+    parseInt(params?.page) || 1
   );
 };
 

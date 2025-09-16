@@ -9,7 +9,7 @@ exports.pinTransactions = async (params) => {
   return PinTransaction.paginate(
     parseInt(params?.limit) || 10,
     {
-      order: [["created_at", "DESC"]],
+      // order: [["created_at", "DESC"]],
       where: {},
       include: [
         {
@@ -86,7 +86,7 @@ exports.linkConnectSelf = async (body) => {
   return pinTransaction;
 };
 
-exports.linkConnectAuto = async (body) => {};
+exports.linkConnectAuto = async (body) => { };
 
 exports.getRhLinkById = async (id) => {
   const help = await Help.findByPk(id);
