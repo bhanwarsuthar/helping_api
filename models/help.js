@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       user_id: DataTypes.BIGINT.UNSIGNED,
       pin_id: DataTypes.BIGINT.UNSIGNED,
       status: DataTypes.STRING,
-      free_flag: { type: DataTypes.INTEGER, defaultValue: 0 },
+      free_flag: { type: DataTypes.INTEGER, defaultValue: 0 }, //cron job every day 4:00pm to create pin transaction with include_flag 1 when user direct provide help count is greater than 10 (now update the user direct_help_provided_user_count field -10)
     },
     {
       sequelize,

@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       pin_id: DataTypes.BIGINT.UNSIGNED,
       status: DataTypes.STRING,
       currency: DataTypes.STRING,
-      include_flag: { type: DataTypes.INTEGER, defaultValue: 0 },  // is this count for free RH for Sponsor 0 = not, 1 = yes
+      include_flag: { type: DataTypes.INTEGER, defaultValue: 0 },
     },
     {
       sequelize,

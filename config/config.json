@@ -1,21 +1,21 @@
 {
   "development": {
     "username": "root",
-    "password": "A12345678",
+    "password": "Bhanwar@123",
     "database": "marry_gold",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": "A12345678",
+    "password": "Bhanwar@123",
     "database": "marry_gold_test",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": "A12345678",
+    "password": "Bhanwar@123",
     "database": "marry_gold_production",
     "host": "127.0.0.1",
     "dialect": "mysql"

@@ -33,13 +33,17 @@ module.exports = {
       end_time: {
         type: Sequelize.DATE
       },
+      free_flag: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
       remaining_count: {
         type: Sequelize.INTEGER
       },
       generate_link_count: {
         type: Sequelize.INTEGER
       },
-      status: Sequelize.ENUM(["active","deactive"]),
+      status: Sequelize.ENUM(["active", "deactive"]),
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE
     });

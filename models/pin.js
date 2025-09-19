@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     start_time: DataTypes.DATE,
     end_time: DataTypes.DATE,
     status: DataTypes.STRING,
+    free_flag: { type: DataTypes.INTEGER, defaultValue: 0 },
   }, {
     sequelize,
     modelName: 'Pin',
