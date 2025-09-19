@@ -155,7 +155,7 @@ exports.createTransaction = async (data) => {
   var metaUser = JSON.parse(JSON.stringify({ ref_no: "" }));
 
   if (data.type === "credit") {
-    var referralUserTransaction = await user.ac_ledgers[0].credit(parseInt(data.amount), "admin", metaUser);
+    var referralUserTransaction = await user.ac_ledgers[0].credit(parseInt(data.amount), data.currency || "INR", "admin", metaUser);
 
     // let level_distro = await CommonData.findOne({
     //   where: {

@@ -63,7 +63,28 @@ module.exports = {
           defaultValue: 0,
           allowNull: false,
         },
+        is_help_provided: {
+          type: Sequelize.INTEGER,
+          defaultValue: 0,
+          allowNull: false,
+        },
         direct_user_count: { type: Sequelize.INTEGER, defaultValue: 0 },
+        direct_help_provided_user_count: { type: Sequelize.INTEGER, defaultValue: 0 },
+        pin_count: {
+          type: Sequelize.BIGINT.UNSIGNED,
+          defaultValue: 0,
+          allowNull: false,
+        },
+        ph_amount: {
+          type: Sequelize.BIGINT.UNSIGNED,
+          defaultValue: 0,
+          allowNull: false,
+        },
+        rh_amount: {
+          type: Sequelize.BIGINT.UNSIGNED,
+          defaultValue: 0,
+          allowNull: false,
+        },
         created_at: {
           type: Sequelize.DATE,
         },

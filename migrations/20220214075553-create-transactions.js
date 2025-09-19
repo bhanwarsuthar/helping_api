@@ -36,6 +36,11 @@ module.exports = {
         onUpdate: "RESTRICT",
       },
       amount: Sequelize.DECIMAL(10, 2),
+      currency: {
+        type: Sequelize.ENUM("INR", "USD"),
+        allowNull: false,
+        defaultValue: "INR",
+      },
       tx_type: Sequelize.ENUM(["debit", "credit", "pending", "reject"]),
       notation: Sequelize.ENUM(AvailableTxNotations),
       meta: Sequelize.JSON,

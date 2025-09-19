@@ -21,6 +21,15 @@ module.exports = {
         type: Sequelize.BIGINT.UNSIGNED,
         allowNull: true,
       },
+      currency: {
+        type: Sequelize.ENUM("INR", "USD"),
+        allowNull: false,
+        defaultValue: "INR",
+      },
+      include_flag: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
       status: Sequelize.ENUM(["success", "pending", "inprogress", "cancel", "expired"]),
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE,

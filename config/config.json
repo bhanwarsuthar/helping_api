@@ -2,21 +2,21 @@
   "development": {
     "username": "root",
     "password": "A12345678",
-    "database": "angel_help",
+    "database": "marry_gold",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
     "password": "A12345678",
-    "database": "angel_help_test",
+    "database": "marry_gold_test",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
     "password": "A12345678",
-    "database": "angel_help_production",
+    "database": "marry_gold_production",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }

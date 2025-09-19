@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       data: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT('long')
       },
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE

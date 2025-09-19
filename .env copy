@@ -1,0 +1,37 @@
+# Server Configurations
+NODE_ENV = development
+PORT = 3000
+
+# Database Configurations
+DB_NAME = angel_help
+DB_USER = root
+DB_USER_PASS = A12345678
+DB_HOST = 127.0.0.1
+
+# JWT Secret 
+JWT_SECRET = gnlawjfelcjlkwtwqkafnt36427ync53aowq35ycnq3y5q370q293u5q2p3uc5
+JWT_EXPIRES_IN = 90d
+
+# Encryption
+SECRET_KEY = gnlawjfelcjlkwtwqkafnt36427ync53
+SECRET_IV = 7fdOMCFRSLD9cv1k
+ECNRYPTION_METHOD = aes-256-cbc
+
+EXPRESS_SESSION_SECRET=7fdOMCFRSLD9cv1k-5n3Dz5n3DmVmVHVIg9GG_OGTUkBfLNdgZAwKDNtoCJ0X0cyqaM0ogR80-zh9kx0Mkx 
+
+# 2 Factor
+API_KEY_2_FACTOR = 956a7ac6-4b0f-11ea-9fa5-0200cd936042
+
+# URL
+API_HOST_URL = https://144m568g-4000.inc1.devtunnels.ms/
+# API_HOST_URL = https://selvi.marwadtech.com/
+
+# One Signal
+ONESIGNAL_APP_ID_USER = 81457ae9-65fb-4dbb-99bc-bf7ff6571004
+ONESIGNAL_API_KEY_USER = os_v2_app_qfcxv2lf7ng3xgn4x577mvyqatwbudh7zfxebh4ccjx4amdngctbvgghiruaovjymzczmr5zg7er26rj5afmh2gto7xuqcytpfqzz6i
+ONESIGNAL_API_BASE_URL = https://onesignal.com/api/v1
+
+
+
+APP_ID = 81457ae9-65fb-4dbb-99bc-bf7ff6571004
+API_KEY = os_v2_app_qfcxv2lf7ng3xgn4x577mvyqatwbudh7zfxebh4ccjx4amdngctbvgghiruaovjymzczmr5zg7er26rj5afmh2gto7xuqcytpfqzz6i

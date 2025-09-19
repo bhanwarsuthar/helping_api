@@ -50,10 +50,15 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       role: DataTypes.STRING,
+      is_help_provided: { type: DataTypes.INTEGER, defaultValue: 0 },
       status: { type: DataTypes.STRING, defaultValue: "active" },
+      pin_count: { type: DataTypes.BIGINT.UNSIGNED, defaultValue: 0 },
+      ph_amount: { type: DataTypes.BIGINT.UNSIGNED, defaultValue: 0 },
+      rh_amount: { type: DataTypes.BIGINT.UNSIGNED, defaultValue: 0 },
       mobile_verified_at: { type: DataTypes.DATE },
       email_verified_at: { type: DataTypes.DATE },
       direct_user_count: { type: DataTypes.INTEGER, defaultValue: 0 },
+      direct_help_provided_user_count: { type: DataTypes.INTEGER, defaultValue: 0 },
     },
     {
       sequelize,
@@ -98,6 +103,7 @@ module.exports = (sequelize, DataTypes) => {
       user_id: user.id,
       ac_ledger_id: ac_ldeger.id,
       amount: register_bonus.data,
+      currency: "INR",
       tx_type: "credit",
       notation: "register_bonus",
       meta: JSON.parse(JSON.stringify({ ref_no: "" })),
@@ -119,7 +125,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     });
 
-    await sponsorUser.ac_ledgers[0].credit(sponsor_bonus.data, "sponsor_bonus", JSON.parse(JSON.stringify({ ref_no: "" })))
+    await sponsorUser.ac_ledgers[0].credit(sponsor_bonus.data, "INR", "sponsor_bonus", JSON.parse(JSON.stringify({ ref_no: "" })))
 
     // await AcLedger.create({
     //   user_id: user.id,

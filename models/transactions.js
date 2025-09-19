@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       ac_ledger_id: DataTypes.BIGINT,
       amount: DataTypes.DECIMAL,
       tx_type: DataTypes.STRING,
+      currency: DataTypes.STRING,
       notation: DataTypes.ENUM(AvailableTxNotations),
       meta: DataTypes.JSON,
     },

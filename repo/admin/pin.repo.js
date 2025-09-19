@@ -130,7 +130,7 @@ exports.deletePin = async (payload, res) => {
     }
     const acLedger = await AcLedger.findOne({ where: { user_id: pinTx.provide_user_id } });
     const pin = await this.singlePin(pinTx.pin_id);
-    await acLedger.credit(pin.pin_amount, "prebooking_pin_delete", JSON.parse(JSON.stringify({ ref_no: "" })));
+    await acLedger.credit(pin.pin_amount, "INR", "prebooking_pin_delete", JSON.parse(JSON.stringify({ ref_no: "" })));
     await pin.increment("remaining_count");
     return await pinTx.destroy();
   } catch (e) {

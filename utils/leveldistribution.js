@@ -38,7 +38,7 @@ exports.distributeAmtByLevel = async (phoneNumber, amount) => {
 const sendLevelDistribution = async (user, amount, level) => {
   const meta = JSON.parse(JSON.stringify({ level }));
 
-  await user.ac_ledgers[0].credit(amount, "level_distribution", meta);
+  await user.ac_ledgers[0].credit(amount, "INR", "level_distribution", meta);
 
   notifyUser(notificationContent.commission.user.desc(amount, level), notificationContent.commission.user.title(), user.id, notificationContent.commission.user.data());
 };

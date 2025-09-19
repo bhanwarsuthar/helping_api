@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       user_id: DataTypes.BIGINT.UNSIGNED,
       pin_id: DataTypes.BIGINT.UNSIGNED,
       status: DataTypes.STRING,
+      free_flag: { type: DataTypes.INTEGER, defaultValue: 0 },
     },
     {
       sequelize,

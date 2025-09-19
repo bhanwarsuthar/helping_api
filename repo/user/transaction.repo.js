@@ -57,7 +57,7 @@ exports.createTransaction = async (data) => {
 
   var meta = JSON.parse(JSON.stringify({ ref_no: data.body.ref_no }));
 
-  var referralUserTransaction = user.ac_ledgers[0].pending(parseInt(data.body.amount), "deposit", meta);
+  var referralUserTransaction = user.ac_ledgers[0].pending(parseInt(data.body.amount), data.body.currency || "INR", "deposit", meta);
 
   return Promise.all([referralUserTransaction])
     .then(([referralUserTransaction]) => {

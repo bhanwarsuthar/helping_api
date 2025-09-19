@@ -23,12 +23,13 @@ module.exports = (sequelize, DataTypes) => {
       return this.balance;
     }
 
-    async credit(amount, notation = null, meta = null) {
+    async credit(amount, currency = "INR", notation = null, meta = null) {
       const Transactions = sequelize.models.Transactions;
       const tx = await Transactions.create({
         user_id: this.user_id,
         ac_ledger_id: this.id,
         amount,
+        currency,
         notation,
         tx_type: "credit",
         meta,
@@ -88,12 +89,13 @@ module.exports = (sequelize, DataTypes) => {
       return tx;
     }
 
-    async debit(amount, notation = null, meta = null) {
+    async debit(amount, currency = "INR", notation = null, meta = null) {
       const Transactions = sequelize.models.Transactions;
       const tx = await Transactions.create({
         user_id: this.user_id,
         ac_ledger_id: this.id,
         amount: amount,
+        currency,
         notation,
         tx_type: "debit",
         meta,
@@ -111,12 +113,13 @@ module.exports = (sequelize, DataTypes) => {
 
     //var metaSponsor = JSON.parse(JSON.stringify(sponsorUser));
 
-    async pending(amount, notation = null, meta = null) {
+    async pending(amount, currency = "INR", notation = null, meta = null) {
       const Transactions = sequelize.models.Transactions;
       const tx = await Transactions.create({
         user_id: this.user_id,
         ac_ledger_id: this.id,
         amount,
+        currency,
         notation,
         tx_type: "pending",
         meta,

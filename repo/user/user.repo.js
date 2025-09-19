@@ -438,7 +438,7 @@ exports.submitRewardPoint = async (sponsor_code, referral_user_id) => {
   delete metaSponsor.ac_ledgers;
   //metaSponsor.ac_ledgers = undefined;
   //console.log(metaSponsor);
-  var referralUserTransaction = referralUser.ac_ledgers[0].credit(5000, "referal", metaSponsor);
+  var referralUserTransaction = referralUser.ac_ledgers[0].credit(5000, "INR", "referal", metaSponsor);
   var attachSponsorToRefferalUser = User.update({ sponsor: sponsor_code }, { where: { id: referralUser.id } });
 
   return Promise.all([referralUserTransaction, attachSponsorToRefferalUser])
@@ -451,7 +451,7 @@ exports.submitRewardPoint = async (sponsor_code, referral_user_id) => {
         if (totalReferralCount < 3) {
           var metaReferral = JSON.parse(JSON.stringify(referralUser));
           delete metaReferral.ac_ledgers;
-          sponsorUser.ac_ledgers[0].credit(2500, "referral", metaReferral);
+          sponsorUser.ac_ledgers[0].credit(2500, "INR", "referral", metaReferral);
         }
         referralUser.sponsor = sponsor_code;
         resolve(referralUser);

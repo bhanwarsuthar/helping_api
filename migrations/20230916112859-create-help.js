@@ -17,7 +17,11 @@ module.exports = {
         type: Sequelize.BIGINT.UNSIGNED,
         allowNull: true
       },
-      status: Sequelize.ENUM(["success","pending","inprogress","cancel"]),
+      free_flag: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      status: Sequelize.ENUM(["success", "pending", "inprogress", "cancel"]),
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE
     });
