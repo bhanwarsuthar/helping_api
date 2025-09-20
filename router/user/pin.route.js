@@ -18,7 +18,7 @@ router.get("/single/pin", Auth, (req, res) => {
 
 router.post("/buy/pin", Auth, (req, res) => {
   pinRepo
-    .buyPin(req.body.pin_id, req.user.id, res)
+    .buyPin({ pin_id: req.body.pin_id, currency: req.body.currency }, req.user.id, res)
     .then((pin) => {
       notifyUser(notificationContent.buyProduct.user.desc(), notificationContent.buyProduct.user.title(), req.user.id, notificationContent.buyProduct.user.data());
       res.json(new CommonResponse((code = 200), (message = "Pin Purchase sucessfully"), (data = pin)));

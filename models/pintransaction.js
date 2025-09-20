@@ -31,5 +31,37 @@ module.exports = (sequelize, DataTypes) => {
       updatedAt: "updated_at",
     }
   );
+
+  PinTransaction.beforeSave(async (pt) => {
+    if (pt.changed("status") && pt.status === "success") {
+      const phUser = await sequelize.models.User.findOne({
+        where: { id: pt.provide_user_id },
+        include: {
+          model: AcLedger,
+          as: "ac_ledgers",
+          where: { slug: "cash-wallet" },
+        },
+      });
+      if (phUser) {
+        if (+phUser?.ac_ledgers[0]?.balance == 0) {
+          await phUser.update({ is_help_provided: 1 });
+        }
+        await phUser.syncPhAmount();
+        if (phUser.sponsor) {
+          const sponsor = await sequelize.models.User.findOne({
+            where: { sponsor: phUser.sponsor },
+          });
+          await sponsor.increment("direct_help_provided_user_count");
+        }
+      }
+      const rhUser = await sequelize.models.User.findOne({
+        where: { id: pt.receive_user_id },
+      });
+      if (rhUser) {
+        await rhUser.syncRhAmount();
+      }
+    }
+  });
+
   return PinTransaction;
 };

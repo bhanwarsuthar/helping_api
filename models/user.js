@@ -34,6 +34,59 @@ module.exports = (sequelize, DataTypes) => {
       notification.props.user = this;
       notification.send();
     }
+
+    async syncPinCount() {
+      const count = await sequelize.models.AcLedger.PinTransaction.count({
+        where: { provide_user_id: this.id, status: "completed" },
+      });
+      await this.update({ pin_count: count });
+    }
+
+    async syncPendingPinCount() {
+      const options = {
+        replacements: { userId: this.id },
+        type: sequelize.QueryTypes.SELECT,
+      };
+      const [{ pinCount }] = await this.sequelize.query(
+        `select count(*) as pinCount
+          from pin_transactions
+        where provide_user_id = :userId and status = "pending";`,
+        options
+      );
+      await this.update({ pin_count: +pinCount || 0 });
+    }
+
+    async syncPhAmount() {
+      const options = {
+        replacements: { userId: this.id },
+        type: sequelize.QueryTypes.SELECT,
+      };
+      const [{ phAmount }] = await this.sequelize.query(
+        `select sum(p.provide_help_amount) as phAmount
+          from pin_transactions pt left join pins p on p.id = pt.pin_id
+        where pt.provide_user_id = :userId and pt.status = "success";`,
+        options
+      );
+      console.log("phAmount", phAmount);
+
+      await this.update({ ph_amount: +phAmount || 0 });
+    }
+
+    async syncRhAmount() {
+      const options = {
+        replacements: { userId: this.id },
+        type: sequelize.QueryTypes.SELECT,
+      };
+      const [{ rhAmount }] = await this.sequelize.query(
+        `select sum(p.receive_help_amount) as rhAmount
+          from pin_transactions pt
+          left join pins p on p.id = pt.pin_id
+        where pt.receive_user_id = :userId and pt.status = "success";`,
+        options
+      );
+      console.log("rhAmount", rhAmount);
+      await this.update({ rh_amount: +rhAmount || 0 });
+    }
   }
 
   User.prototype.can = can;

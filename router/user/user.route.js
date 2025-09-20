@@ -35,19 +35,18 @@ router.get("/level/:num", Auth, (req, res) => {
 
 router.get("/my-insights", Auth, (req, res) => {
   userRepo
-    .userInsights({ userId: req.user.id })
-    .then(([ph, rh]) => {
-      res.status(200).json(
-        new CommonResponse(
-          (code = 200),
-          (message = "user insights fetched"),
-          (data = {
-            ph: { ...ph, total_amount: +ph.total_amount },
-            rh: { ...rh, total_amount: +rh.total_amount },
-          }),
-          (error = {})
-        )
-      );
+    .userInsights(req.user.id)
+    .then((data) => {
+      res
+        .status(200)
+        .json(
+          new CommonResponse(
+            (code = 200),
+            (message = "user insights fetched"),
+            data,
+            (error = {})
+          )
+        );
     })
     .catch((err) => {
       console.log(err);
@@ -56,15 +55,15 @@ router.get("/my-insights", Auth, (req, res) => {
 });
 
 router.post("/update/profile", Auth, validator(schema.update_user), (req, res) => {
-  console.log("user_id", req.user.id);
-  userRepo
-    .update_user(req.user, req.body)
-    .then((user) => {
-      res.json({ message: "", data: user });
-    })
-    .catch((err) => {
-      res.status(400).json({ message: "Something went wrong." });
-    });
+    console.log("user_id", req.user.id);
+    userRepo
+      .update_user(req.user, req.body)
+      .then((user) => {
+        res.json({ message: "", data: user });
+      })
+      .catch((err) => {
+        res.status(400).json({ message: "Something went wrong." });
+      });
 });
 
 router.post("/users", validator(schema.create_user), (req, res) => {
@@ -157,14 +156,14 @@ router.post("/check_sponsor", validator(schema.sponsor_code), (req, res) => {
 });
 
 router.post("/attach_sponsor", Auth, validator(schema.sponsor_code), (req, res) => {
-  userRepo
-    .attachSponsor(req.user.id, req.body.sponsor_code)
-    .then((user) => {
-      res.json({ message: "", data: user });
-    })
-    .catch((err) => {
-      res.status(400).json({ message: err.message });
-    });
+    userRepo
+      .attachSponsor(req.user.id, req.body.sponsor_code)
+      .then((user) => {
+        res.json({ message: "", data: user });
+      })
+      .catch((err) => {
+        res.status(400).json({ message: err.message });
+      });
 });
 
 router.get("/direct_user", Auth, (req, res) => {

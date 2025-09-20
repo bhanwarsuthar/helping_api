@@ -43,24 +43,38 @@ exports.buyPin = async (pin_id, user_id, res) => {
   var meta = JSON.parse(JSON.stringify({ ref_no: "0" }));
   if (pin.remaining_count > 0) {
     let pinTransactions = PinTransaction.create({
+      currency,
       provide_user_id: user_id,
       pin_id: pin_id,
       status: "pending",
     });
-    var debitUserTransaction = user.ac_ledgers[0].debit(parseInt(pin.pin_amount), "purchase", meta);
+    var debitUserTransaction = user.ac_ledgers[0].debit(
+      parseInt(pin.pin_amount),
+      "INR",
+      "purchase",
+      meta
+    );
     pin.remaining_count = pin.remaining_count - 1;
     let updatedPin = pin.save();
-    return Promise.all([pinTransactions, debitUserTransaction, updatedPin])
+    const result = await Promise.all([
+      pinTransactions,
+      debitUserTransaction,
+      updatedPin,
+    ])
       .then(([pinTransactions, debitUserTransaction, updatedPin]) => {
         return new Promise(async (resolve, reject) => {
-          if (!pinTransactions && !debitUserTransaction && !updatedPin) return reject("Pin purchase next time...");
+          if (!pinTransactions && !debitUserTransaction && !updatedPin)
+            return reject("Pin purchase next time...");
           let pin = await this.singlePin();
           resolve(pin);
         });
       })
       .catch((err) => {
+        console.log("user", err);
         throw new ResMessageError(err.message);
       });
+    await user.syncPendingPinCount();
+    return result;
   } else {
     throw new ResMessageError("All Pin soldout...");
   }

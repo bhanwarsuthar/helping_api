@@ -1,6 +1,6 @@
 const { OtpNotification } = require("../../notifications/otp.notification");
 const otpService = require("../../services/otp/otp.service");
-const { User, Address, AcLedger, AcLedgerTx, Transactions, PinTransaction, DeliveryBoy, Pin, sequelize } = require("../../models");
+const { User, Address, AcLedger, PinTransaction, DeliveryBoy, Pin, sequelize, CommonData } = require("../../models");
 const { Op } = require("sequelize");
 const { reject } = require("bluebird");
 const { ResMessageError } = require("../../exceptions/customExceptions");
@@ -8,12 +8,22 @@ const { ResMessageError } = require("../../exceptions/customExceptions");
 exports.profile = async (filter) => {
   return User.findOne({
     where: filter,
-    include: ["ac_ledgers", { model: PinTransaction, as: "pin_transaction", include: ["pin"] }],
+    include: [
+      "ac_ledgers",
+      { model: PinTransaction, as: "pin_transaction", include: ["pin"] },
+    ],
   });
 };
 
-exports.userInsights = async (data) => {
-  return Promise.all([
+exports.userInsights = async (userId) => {
+  const commonData = await CommonData.findOne({
+    where: { key: "REWARD_PH_TEAM_COUNT" },
+  });
+  const user = await User.findByPk(userId);
+  const haveProvidedHelpUsers = await User.findAll({
+    where: { sponsor: user.mobile, is_help_provided: 0 },
+  });
+  const [ph, rh, myCommission] = await Promise.all([
     sequelize.query(
       `
     SELECT SUM(provide_help_amount) as total_amount, COUNT(*) as total_count
@@ -27,10 +37,9 @@ exports.userInsights = async (data) => {
       {
         type: sequelize.QueryTypes.SELECT,
         plain: true,
-        replacements: { userId: data.userId },
+        replacements: { userId },
       }
     ),
-
     sequelize.query(
       `
     SELECT SUM(receive_help_amount) as total_amount, COUNT(*) as total_count
@@ -44,10 +53,30 @@ exports.userInsights = async (data) => {
       {
         type: sequelize.QueryTypes.SELECT,
         plain: true,
-        replacements: { userId: data.userId },
+        replacements: { userId },
+      }
+    ),
+    sequelize.query(
+      `select count(*) as total, sum(p.receive_help_amount) as sum from pin_transactions pt left join pins p on p.id = pt.pin_id where pt.receive_user_id = :userId and pt.include_flag = 1 and pt.status = "success"`,
+      {
+        type: sequelize.QueryTypes.SELECT,
+        plain: true,
+        replacements: { userId },
       }
     ),
   ]);
+  return {
+    ph,
+    rh,
+    direct_user_count: user.direct_user_count,
+    have_provided_help_user_count: haveProvidedHelpUsers?.length,
+    team_business: haveProvidedHelpUsers.reduce((a, b) => a + b.ph_amount, 0),
+    commission: {
+      total: myCommission?.total,
+      sum: myCommission?.sum || 0,
+      reward_ph_team_count: commonData?.data || 10,
+    },
+  };
 };
 
 exports.getUsersByLevel = async (phoneNumber, level, options) => {
@@ -251,13 +280,13 @@ exports.defaultAddress = (id, userId) => {
     }
   );
   return Promise.all([address, allUpdatedAddress]).then(([address, allUpdatedAddress]) => {
-    return new Promise((resolve, reject) => {
-      if (!address) return reject("Unable to update address");
-      if (!allUpdatedAddress) return reject("Unable to update address");
-      address.is_default = true;
-      address.save();
-      resolve(address);
-    });
+      return new Promise((resolve, reject) => {
+        if (!address) return reject("Unable to update address");
+        if (!allUpdatedAddress) return reject("Unable to update address");
+        address.is_default = true;
+        address.save();
+        resolve(address);
+      });
   });
 };
 
