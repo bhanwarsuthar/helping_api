@@ -8,6 +8,7 @@ exports.singlePin = () => {
   return Pin.findOne({
     where: {
       status: "active",
+      free_flag: 0
     },
     order: [["start_time", "DESC"]],
   });

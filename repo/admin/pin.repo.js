@@ -97,6 +97,7 @@ exports.createPin = async (data) => {
       start_time: moment.utc(data.start_time).local(),
       end_time: moment.utc(data.end_time).local(),
       status: data.status,
+      free_flag: data.free_flag
     });
   } catch (e) {
     throw new ResMessageError(e.message);
@@ -118,6 +119,7 @@ exports.updatePin = async (data) => {
   item.start_time = data.start_time !== undefined ? moment.utc(data.start_time).local().format("YYYY-MM-DDTHH:mm:SS.sss") : item.start_time;
   item.end_time = data.end_time !== undefined ? moment.utc(data.end_time).local().format("YYYY-MM-DDTHH:mm:SS.sss") : item.end_time;
   item.status = data.status !== undefined ? data.status : item.status;
+  item.free_flag = data.free_flag !== undefined ? data.free_flag : item.free_flag;
   await item.save();
   return item;
 };

@@ -50,15 +50,15 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
       },
       role: DataTypes.STRING,
-      is_help_provided: { type: DataTypes.INTEGER, defaultValue: 0 },
+      is_help_provided: { type: DataTypes.INTEGER, defaultValue: 0 },// 0 = no, 1 = yes
       status: { type: DataTypes.STRING, defaultValue: "active" },
-      pin_count: { type: DataTypes.BIGINT.UNSIGNED, defaultValue: 0 },
-      ph_amount: { type: DataTypes.BIGINT.UNSIGNED, defaultValue: 0 },
-      rh_amount: { type: DataTypes.BIGINT.UNSIGNED, defaultValue: 0 },
+      pin_count: { type: DataTypes.BIGINT.UNSIGNED, defaultValue: 0 }, //pin purchase count
+      ph_amount: { type: DataTypes.BIGINT.UNSIGNED, defaultValue: 0 }, // total ph amount
+      rh_amount: { type: DataTypes.BIGINT.UNSIGNED, defaultValue: 0 }, // total rh amount
       mobile_verified_at: { type: DataTypes.DATE },
       email_verified_at: { type: DataTypes.DATE },
       direct_user_count: { type: DataTypes.INTEGER, defaultValue: 0 },
-      direct_help_provided_user_count: { type: DataTypes.INTEGER, defaultValue: 0 },
+      direct_help_provided_user_count: { type: DataTypes.INTEGER, defaultValue: 0 },// direct (Level 1) user who provided help
     },
     {
       sequelize,
