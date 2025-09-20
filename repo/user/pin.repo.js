@@ -14,7 +14,7 @@ exports.singlePin = () => {
   });
 };
 
-exports.buyPin = async (pin_id, user_id, res) => {
+exports.buyPin = async ({ pin_id, currency }, user_id, res) => {
   let pin = await Pin.findByPk(Number(pin_id));
   if (!pin) {
     throw new ResMessageError("Pin Not Found");

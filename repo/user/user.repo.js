@@ -1,6 +1,15 @@
 const { OtpNotification } = require("../../notifications/otp.notification");
 const otpService = require("../../services/otp/otp.service");
-const { User, Address, AcLedger, PinTransaction, DeliveryBoy, Pin, sequelize, CommonData } = require("../../models");
+const {
+  User,
+  Address,
+  AcLedger,
+  PinTransaction,
+  DeliveryBoy,
+  Pin,
+  sequelize,
+  CommonData,
+} = require("../../models");
 const { Op } = require("sequelize");
 const { reject } = require("bluebird");
 const { ResMessageError } = require("../../exceptions/customExceptions");
@@ -21,7 +30,7 @@ exports.userInsights = async (userId) => {
   });
   const user = await User.findByPk(userId);
   const haveProvidedHelpUsers = await User.findAll({
-    where: { sponsor: user.mobile, is_help_provided: 0 },
+    where: { sponsor: user.mobile, is_help_provided: 1 },
   });
   const [ph, rh, myCommission] = await Promise.all([
     sequelize.query(
@@ -66,15 +75,34 @@ exports.userInsights = async (userId) => {
     ),
   ]);
   return {
-    ph,
-    rh,
-    direct_user_count: user.direct_user_count,
-    have_provided_help_user_count: haveProvidedHelpUsers?.length,
-    team_business: haveProvidedHelpUsers.reduce((a, b) => a + b.ph_amount, 0),
+    ph: {
+      total_count: +ph?.total_count || 0,
+      total_amount: +ph?.total_amount || 0,
+    },
+    rh: {
+      total_count: +rh?.total_count || 0,
+      total_amount: +rh?.total_amount || 0,
+    },
+    team: {
+      direct: user.direct_user_count,
+      active: haveProvidedHelpUsers?.length,
+    },
+    // team_business: haveProvidedHelpUsers.reduce((a, b) => a + b.ph_amount, 0),
+    team_business: {
+      total_pin_count: haveProvidedHelpUsers.reduce(
+        (a, b) => a + b.pin_count,
+        0
+      ),
+      total_ph_amount: haveProvidedHelpUsers.reduce(
+        (a, b) => a + b.ph_amount,
+        0
+      ),
+    },
     commission: {
-      total: myCommission?.total,
-      sum: myCommission?.sum || 0,
+      total_rh_count: myCommission?.total,
+      total_receive_amount: myCommission?.sum || 0,
       reward_ph_team_count: commonData?.data || 10,
+      have_provided_help_user_count: haveProvidedHelpUsers?.length,
     },
   };
 };
@@ -95,7 +123,9 @@ exports.getUsersByLevel = async (phoneNumber, level, options) => {
     return levelOneUsers;
   }
 
-  levelOneUsers = await User.findAll({ where: { role: "user", sponsor: phoneNumber } });
+  levelOneUsers = await User.findAll({
+    where: { role: "user", sponsor: phoneNumber },
+  });
 
   let nextLevelUsers = [...levelOneUsers];
 
@@ -244,12 +274,19 @@ exports.addAddress = (userId, params) => {
 
       address.user_id = userId;
       if (params.is_default == "true") {
-        Address.update({ is_default: false }, { where: { is_default: true, user_id: userId } });
+        Address.update(
+          { is_default: false },
+          { where: { is_default: true, user_id: userId } }
+        );
       }
       if (params.geo) {
         let lat = params.geo["lat"];
         let long = params.geo["long"];
-        address.geo_location = sequelize.fn("ST_GeomFromText", `POINT(${long} ${lat})`, 4326);
+        address.geo_location = sequelize.fn(
+          "ST_GeomFromText",
+          `POINT(${long} ${lat})`,
+          4326
+        );
       }
       // address.state = 'Rajasthan'
       // address.country = 'IN'
@@ -279,7 +316,8 @@ exports.defaultAddress = (id, userId) => {
       },
     }
   );
-  return Promise.all([address, allUpdatedAddress]).then(([address, allUpdatedAddress]) => {
+  return Promise.all([address, allUpdatedAddress]).then(
+    ([address, allUpdatedAddress]) => {
       return new Promise((resolve, reject) => {
         if (!address) return reject("Unable to update address");
         if (!allUpdatedAddress) return reject("Unable to update address");
@@ -287,17 +325,25 @@ exports.defaultAddress = (id, userId) => {
         address.save();
         resolve(address);
       });
-  });
+    }
+  );
 };
 
 exports.updateAddress = async (id, userId, params) => {
   if (params.geo) {
     let lat = params.geo["lat"];
     let long = params.geo["long"];
-    params.geo_location = sequelize.fn("ST_GeomFromText", `POINT(${long} ${lat})`, 4326);
+    params.geo_location = sequelize.fn(
+      "ST_GeomFromText",
+      `POINT(${long} ${lat})`,
+      4326
+    );
   }
   if (params.is_default == "true") {
-    await Address.update({ is_default: false }, { where: { is_default: true, user_id: userId } });
+    await Address.update(
+      { is_default: false },
+      { where: { is_default: true, user_id: userId } }
+    );
   }
 
   let address = Address.update(params, { where: { id: id } });
@@ -308,7 +354,10 @@ exports.updateAddress = async (id, userId, params) => {
       if (params.geo) {
         params.geo_location = {
           type: "Point",
-          coordinates: [parseFloat(params.geo["long"]), parseFloat(params.geo["lat"])],
+          coordinates: [
+            parseFloat(params.geo["long"]),
+            parseFloat(params.geo["lat"]),
+          ],
         };
       }
       params.id = parseInt(id);
@@ -467,20 +516,37 @@ exports.submitRewardPoint = async (sponsor_code, referral_user_id) => {
   delete metaSponsor.ac_ledgers;
   //metaSponsor.ac_ledgers = undefined;
   //console.log(metaSponsor);
-  var referralUserTransaction = referralUser.ac_ledgers[0].credit(5000, "INR", "referal", metaSponsor);
-  var attachSponsorToRefferalUser = User.update({ sponsor: sponsor_code }, { where: { id: referralUser.id } });
+  var referralUserTransaction = referralUser.ac_ledgers[0].credit(
+    5000,
+    "INR",
+    "referal",
+    metaSponsor
+  );
+  var attachSponsorToRefferalUser = User.update(
+    { sponsor: sponsor_code },
+    { where: { id: referralUser.id } }
+  );
 
   return Promise.all([referralUserTransaction, attachSponsorToRefferalUser])
     .then(([referralUserTransaction, attachSponsorToRefferalUser]) => {
       return new Promise(async (resolve, reject) => {
-        if (!referralUserTransaction) return reject("Unable to update promo point");
-        if (!attachSponsorToRefferalUser) return reject("Unable to attach sponsor code");
+        if (!referralUserTransaction)
+          return reject("Unable to update promo point");
+        if (!attachSponsorToRefferalUser)
+          return reject("Unable to attach sponsor code");
 
-        var totalReferralCount = await User.count({ where: { sponsor: sponsorUser.referral_code } });
+        var totalReferralCount = await User.count({
+          where: { sponsor: sponsorUser.referral_code },
+        });
         if (totalReferralCount < 3) {
           var metaReferral = JSON.parse(JSON.stringify(referralUser));
           delete metaReferral.ac_ledgers;
-          sponsorUser.ac_ledgers[0].credit(2500, "INR", "referral", metaReferral);
+          sponsorUser.ac_ledgers[0].credit(
+            2500,
+            "INR",
+            "referral",
+            metaReferral
+          );
         }
         referralUser.sponsor = sponsor_code;
         resolve(referralUser);

@@ -32,12 +32,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  PinTransaction.beforeSave(async (pt) => {
+  PinTransaction.beforeUpdate(async (pt) => {
     if (pt.changed("status") && pt.status === "success") {
       const phUser = await sequelize.models.User.findOne({
         where: { id: pt.provide_user_id },
         include: {
-          model: AcLedger,
+          model: sequelize.models.AcLedger,
           as: "ac_ledgers",
           where: { slug: "cash-wallet" },
         },
@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         await phUser.syncPhAmount();
         if (phUser.sponsor) {
           const sponsor = await sequelize.models.User.findOne({
-            where: { sponsor: phUser.sponsor },
+            where: { mobile: phUser.sponsor },
           });
           await sponsor.increment("direct_help_provided_user_count");
         }
