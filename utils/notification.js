@@ -244,7 +244,7 @@ exports.notificationContent = {
       title: () => "New Referral User",
       desc: () => "Congrats! A new user have signed-up with your sponsor code",
       data: () => {
-        return { activity: notificationData.level, id: null };
+        return { activity: notificationData.sponsorBonus, id: null };
       },
     },
     // admin: {

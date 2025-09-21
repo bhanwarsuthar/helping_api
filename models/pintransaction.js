@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
       if (phUser) {
-        if (+phUser?.ac_ledgers[0]?.balance == 0) {
+        if (+phUser?.is_help_provided == 0) {
           await phUser.update({ is_help_provided: 1 });
         }
         await phUser.syncPhAmount();

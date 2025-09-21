@@ -102,7 +102,7 @@ exports.userInsights = async (userId) => {
       total_rh_count: myCommission?.total,
       total_receive_amount: myCommission?.sum || 0,
       reward_ph_team_count: commonData?.data || 10,
-      have_provided_help_user_count: haveProvidedHelpUsers?.length,
+      have_provided_help_user_count: user?.direct_help_provided_user_count || 0,
     },
   };
 };

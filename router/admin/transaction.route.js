@@ -71,7 +71,9 @@ router.put("/approve/transaction", async (req, res) => {
         notificationContent.transactionApproved.user.data()
       );
       const user = await userRepo.profile({ id: approvedTx.user_id });
-      await distributeAmtByLevel(user.sponsor, approvedTx.amount);
+      if (user.sponsor) {
+        await distributeAmtByLevel(user.sponsor, approvedTx.amount);
+      }
       return res.json(new CommonResponse(200, (message = "transaction data updated"), (data = approvedTx.id)));
     })
     .catch((err) => {
