@@ -3,7 +3,7 @@ const router = express.Router();
 const transactionRepo = require("../../repo/user/transaction.repo");
 const { CommonResponse } = require("../../response/successResponse");
 const { Auth } = require("../../middleware/jwt_auth");
-const { notifyAdmin, notificationContent } = require("../../utils/notification");
+const { notifyAdmin, notificationContent, notifyUser } = require("../../utils/notification");
 
 router.get("/transactions", Auth, (req, res) => {
   transactionRepo
@@ -32,6 +32,27 @@ router.post("/transaction", Auth, (req, res) => {
     .catch((err) => {
       console.log("error", err);
       return res.status(400).json(new CommonResponse((code = 400), (message = "transaction does not created"), (data = {}), (error = err)));
+    });
+});
+
+
+router.post("/transaction/transfer", Auth, (req, res) => {
+  /**
+   * self : amount, userName, userPh, currency
+   * other: receiverMobile, 
+   */
+  console.log(req.body);
+  transactionRepo
+    .createTransactionTransfer(req)
+    .then((transaction) => {
+      notifyUser(
+        notificationContent.transfer.user.desc({ amount: req.body.amount, userName: req.body.userName, userPh: req.body.userPh })
+      );
+      return res.json(new CommonResponse((code = 200), (message = "amount transfer successful"), (data = transaction), (error = {})));
+    })
+    .catch((err) => {
+      console.log("error", err);
+      return res.status(400).json(new CommonResponse((code = 400), (message = "amount transfer failed"), (data = {}), (error = err)));
     });
 });
 

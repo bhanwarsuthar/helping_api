@@ -70,3 +70,59 @@ exports.createTransaction = async (data) => {
       throw new Error(err.message);
     });
 };
+
+
+exports.createTransactionTransfer = async (data) => {
+  var senderUser = await User.findOne({
+    where: { id: data.user.id },
+    include: {
+      model: AcLedger,
+      as: "ac_ledgers",
+      where: { slug: "cash-wallet" },
+    },
+  });
+
+  if (!senderUser) {
+    throw new ResMessageError("Sender User Not Found");
+  }
+
+  if (senderUser.ac_ledgers[0].balance < parseInt(data.body.amount)) {
+    throw new ResMessageError("Insufficient Balance");
+  }
+
+  var receiverUser = await User.findOne({
+    where: { mobile: data.body.receiverMobile },
+    include: {
+      model: AcLedger,
+      as: "ac_ledgers",
+      where: { slug: "cash-wallet" },
+    },
+  });
+
+  if (!receiverUser) {
+    throw new ResMessageError("Receiver User Not Found");
+  }
+
+
+
+  var senderMeta = JSON.parse(JSON.stringify({ receiver_user: senderUser }));
+
+  var receiverMeta = JSON.parse(JSON.stringify({ receiver_user: receiverUser }));
+
+  var receiverUserTransaction = receiverUser.ac_ledgers[0].credit(parseInt(data.body.amount), data.body.currency || "INR", "transfer", senderMeta);
+  var senderUserTransaction = senderUser.ac_ledgers[0].debit(parseInt(data.body.amount), data.body.currency || "INR", "transfer", receiverMeta);
+
+
+
+  return Promise.all([receiverUserTransaction, senderUserTransaction])
+    .then(([receiverUserTransaction, senderUserTransaction]) => {
+      return new Promise(async (resolve, reject) => {
+        if (!receiverUserTransaction) return reject("Unable to update cash wallet");
+        if (!senderUserTransaction) return reject("Unable to update cash wallet");
+        resolve(senderUserTransaction);
+      });
+    })
+    .catch((err) => {
+      throw new Error(err.message);
+    });
+};

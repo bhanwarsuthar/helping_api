@@ -66,11 +66,11 @@ exports.has_mobile = async (req, res) => {
           message: "User is blocked",
         });
       }
-      if (await otpService.verifyOtp(user, { code: req.body.otp || "", send_to: req.body.mobile })) {
-        res.status(400).json({ message: "Account not found." });
-      } else {
-        res.status(200).json({ message: "Mobile number available." });
-      }
+
+      res.status(200).json({
+        message: "Mobile number available.", data: { name: user.first_name },
+      });
+
     })
     .catch((error) => {
       res.status(400).json({ message: error });
