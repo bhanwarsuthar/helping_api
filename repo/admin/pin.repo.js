@@ -143,6 +143,7 @@ exports.deletePin = async (payload, res) => {
 exports.preBookingPin = async (body, res) => {
   const mobileNumber = body.mobile;
   const pinId = body.pin_id;
+  const currency = body.currency;
   const quantity = Number(body.quantity);
   if (quantity == 0) {
     throw new ResMessageError("Invalid Quantity");
@@ -165,26 +166,27 @@ exports.preBookingPin = async (body, res) => {
   /**
    * this condition for check pin availablity and user wallet amount
    */
-  if (pin.remaining_count <= Number(quantity)) {
+  if (pin.remaining_count < Number(quantity)) {
     throw new ResMessageError(`${quantity} Quantity not available`);
   }
   if (Number(user.ac_ledgers[0].balance) < Number(pin.pin_amount) * Number(quantity)) {
     throw new ResMessageError("Wallet Amount is not enough...");
   }
   var meta = JSON.parse(JSON.stringify({ ref_no: "0" }));
-  if (pin.remaining_count > Number(quantity)) {
+  if (pin.remaining_count >= Number(quantity)) {
     let prebookingPinList = [];
     for (let index = 0; index < Number(quantity); index++) {
       prebookingPinList.push({
         provide_user_id: user.id,
         pin_id: pin.id,
         status: "pending",
+        currency: currency
       });
     }
 
     let pinTransactions = PinTransaction.bulkCreate(prebookingPinList);
 
-    var debitUserTransaction = user.ac_ledgers[0].debit(parseInt(pin.pin_amount) * Number(quantity), "admin", meta);
+    var debitUserTransaction = user.ac_ledgers[0].debit(parseInt(pin.pin_amount) * Number(quantity), currency, "admin", meta);
     pin.remaining_count = pin.remaining_count - Number(quantity);
     let updatedPin = pin.save();
     return Promise.all([pinTransactions, debitUserTransaction, updatedPin])

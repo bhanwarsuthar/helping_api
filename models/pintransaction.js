@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       receive_user_id: DataTypes.BIGINT.UNSIGNED,
       pin_id: DataTypes.BIGINT.UNSIGNED,
       status: DataTypes.STRING,
-      currency: DataTypes.STRING,
+      currency: DataTypes.ENUM(['INR', 'USD']),
       include_flag: { type: DataTypes.INTEGER, defaultValue: 0 },
     },
     {

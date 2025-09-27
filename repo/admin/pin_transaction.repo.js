@@ -154,6 +154,7 @@ exports.receviedPayment = async (body) => {
     helpList.push({
       user_id: pinTransaction.provide_user_id,
       pin_id: pin.id,
+      currency: pinTransaction.currency,
       status: "pending",
     });
   }

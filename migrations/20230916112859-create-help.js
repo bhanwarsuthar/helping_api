@@ -21,6 +21,11 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
+      currency: {
+        type: Sequelize.ENUM(["INR", "USD"]),
+        allowNull: false,
+        defaultValue: "INR",
+      },
       status: Sequelize.ENUM(["success", "pending", "inprogress", "cancel"]),
       created_at: Sequelize.DATE,
       updated_at: Sequelize.DATE

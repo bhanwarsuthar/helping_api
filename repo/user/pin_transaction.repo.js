@@ -83,6 +83,7 @@ exports.receviedPayment = async (body) => {
   for (let index = 0; index < Number(pin.generate_link_count); index++) {
     helpList.push({
       user_id: pinTransaction.provide_user_id,
+      currency: pinTransaction.currency,
       pin_id: pin.id,
       status: "pending",
     });

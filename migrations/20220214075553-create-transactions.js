@@ -37,7 +37,7 @@ module.exports = {
       },
       amount: Sequelize.DECIMAL(10, 2),
       currency: {
-        type: Sequelize.ENUM("INR", "USD"),
+        type: Sequelize.ENUM(["INR", "USD"]),
         allowNull: false,
         defaultValue: "INR",
       },

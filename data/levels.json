@@ -3,7 +3,7 @@
     "id": 1,
     "level": 1,
     "title": "One Level",
-    "percentage": 25,
+    "percentage": 10,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
@@ -11,7 +11,7 @@
     "id": 2,
     "level": 2,
     "title": "Two Level",
-    "percentage": 15,
+    "percentage": 5,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
@@ -19,7 +19,7 @@
     "id": 3,
     "level": 3,
     "title": "Three Level",
-    "percentage": 10,
+    "percentage": 5,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
@@ -27,7 +27,7 @@
     "id": 4,
     "level": 4,
     "title": "Four Level",
-    "percentage": 8,
+    "percentage": 2,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
@@ -35,7 +35,7 @@
     "id": 5,
     "level": 5,
     "title": "Five Level",
-    "percentage": 7,
+    "percentage": 2,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
@@ -43,7 +43,7 @@
     "id": 6,
     "level": 6,
     "title": "Six Level",
-    "percentage": 6,
+    "percentage": 2,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
@@ -51,7 +51,7 @@
     "id": 7,
     "level": 7,
     "title": "Seven Level",
-    "percentage": 5,
+    "percentage": 2,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
@@ -59,7 +59,7 @@
     "id": 8,
     "level": 8,
     "title": "Eight Level",
-    "percentage": 4,
+    "percentage": 2,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
@@ -67,7 +67,7 @@
     "id": 9,
     "level": 9,
     "title": "Nine Level",
-    "percentage": 3,
+    "percentage": 2,
     "created_at": "2023-06-30 16:48:42",
     "updated_at": "2023-10-27 04:57:01"
   },
