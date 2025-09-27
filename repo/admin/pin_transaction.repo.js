@@ -128,6 +128,7 @@ exports.userPendingRhConnectToPh = async (body) => {
     throw new ResMessageError("Link not available");
   }
   pinTransaction.receive_user_id = Number(help.user_id);
+  pinTransaction.include_flag = help.free_flag;
   pinTransaction.status = "inprogress";
   await pinTransaction.save();
   help.status = "success";

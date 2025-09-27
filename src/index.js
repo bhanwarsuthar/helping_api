@@ -71,7 +71,7 @@ app.get("/", (req, res) => {
 
 // Schedule the task to run every day at 4:00 PM IST
 cron.schedule(
-  "36 22 * * *",
+  "0 16 * * *",
   async () => {
     await rewardPHTeam();
   },
