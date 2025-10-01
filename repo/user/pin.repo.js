@@ -50,7 +50,7 @@ exports.buyPin = async ({ pin_id, currency }, user_id, res) => {
     });
     var debitUserTransaction = user.ac_ledgers[0].debit(
       parseInt(pin.pin_amount),
-      "INR",
+      currency,
       "purchase",
       meta
     );
