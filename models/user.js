@@ -1,6 +1,7 @@
 "use strict";
 const { BaseModel } = require("./base_models/BaseModel");
 const { can } = require("../middleware/roleAuth");
+const { Model, DataTypes, Sequelize } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
   const PROTECTED_ATTRIBUTES = ["password", "token"];
@@ -59,34 +60,88 @@ module.exports = (sequelize, DataTypes) => {
     async syncPhAmount() {
       const options = {
         replacements: { userId: this.id },
-        type: sequelize.QueryTypes.SELECT,
+        type: Sequelize.QueryTypes.SELECT,
       };
+
       const [{ phAmount }] = await this.sequelize.query(
-        `select sum(p.provide_help_amount) as phAmount
-          from pin_transactions pt left join pins p on p.id = pt.pin_id
-        where pt.provide_user_id = :userId and pt.status = "success";`,
+        `SELECT COALESCE(SUM(p.provide_help_amount), 0) AS phAmount
+       FROM pin_transactions pt
+       INNER JOIN pins p ON p.id = pt.pin_id
+       WHERE pt.provide_user_id = :userId 
+         AND pt.status = "success";`,
         options
       );
-      console.log("phAmount", phAmount);
-
       await this.update({ ph_amount: +phAmount || 0 });
     }
 
     async syncRhAmount() {
       const options = {
         replacements: { userId: this.id },
-        type: sequelize.QueryTypes.SELECT,
+        type: Sequelize.QueryTypes.SELECT,
       };
+
       const [{ rhAmount }] = await this.sequelize.query(
-        `select sum(p.receive_help_amount) as rhAmount
-          from pin_transactions pt
-          left join pins p on p.id = pt.pin_id
-        where pt.receive_user_id = :userId and pt.status = "success";`,
+        `SELECT COALESCE(SUM(p.receive_help_amount), 0) AS rhAmount
+       FROM pin_transactions pt
+       INNER JOIN pins p ON p.id = pt.pin_id
+       WHERE pt.receive_user_id = :userId 
+         AND pt.status = "success";`,
         options
       );
-      console.log("rhAmount", rhAmount);
+
       await this.update({ rh_amount: +rhAmount || 0 });
     }
+
+    async syncPinCount() {
+      const options = {
+        replacements: { userId: this.id },
+        type: Sequelize.QueryTypes.SELECT,
+      };
+
+      const [{ pinCount }] = await this.sequelize.query(
+        `SELECT COUNT(*) AS pinCount
+     FROM pin_transactions pt
+     WHERE pt.provide_user_id = :userId 
+       AND pt.status = "success";`,
+        options
+      );
+
+      await this.update({ pin_count: +pinCount || 0 });
+    }
+
+    async syncDirectHelpProvidedCount() {
+      const options = {
+        replacements: { userId: this.id },
+        type: Sequelize.QueryTypes.SELECT,
+      };
+
+      // Step 1: get current user's mobile
+      const user = await this.sequelize.models.User.findByPk(this.id);
+      if (!user) return;
+
+      // Step 2: calculate direct help provided count
+      const query = `
+    SELECT 
+      COALESCE(COUNT(DISTINCT pt.provide_user_id), 0) AS directCount,
+      COALESCE(SUM(CASE WHEN pt.include_flag = 1 THEN 10 ELSE 0 END), 0) AS reduceCount
+    FROM users u
+    INNER JOIN pin_transactions pt ON u.id = pt.provide_user_id
+    WHERE u.sponsor = :mobile
+      AND pt.status = "success"
+  `;
+
+      const [{ directCount, reduceCount }] = await this.sequelize.query(query, {
+        ...options,
+        replacements: { mobile: user.mobile },
+      });
+
+      const finalCount = Math.max(0, directCount - reduceCount);
+
+      await this.update({ direct_help_provided_user_count: finalCount });
+    }
+
+
+
   }
 
   User.prototype.can = can;
@@ -187,6 +242,8 @@ module.exports = (sequelize, DataTypes) => {
     //   balance: 0
     // })
   });
+
+
 
   return User;
 };

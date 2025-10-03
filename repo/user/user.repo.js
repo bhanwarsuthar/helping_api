@@ -29,6 +29,7 @@ exports.userInsights = async (userId) => {
     where: { key: "REWARD_PH_TEAM_COUNT" },
   });
   const user = await User.findByPk(userId);
+  // users who have provided help to others
   const haveProvidedHelpUsers = await User.findAll({
     where: { sponsor: user.mobile, is_help_provided: 1 },
   });

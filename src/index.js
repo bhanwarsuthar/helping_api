@@ -16,6 +16,7 @@ require(".././middleware/userPassport");
 
 const { User } = require("../models");
 const { Op } = require("sequelize");
+const { use } = require("passport");
 
 // defining the Express app
 const app = express();
@@ -80,6 +81,31 @@ cron.schedule(
     timezone: "Asia/Kolkata", // Set the timezone to 'Asia/Kolkata' for IST
   }
 );
+
+// Runs every day at 1 AM (adjust as needed)
+cron.schedule("0 * * * *", async () => {
+  console.log("🔄 Cron Job Started: Syncing PH & RH amounts...");
+
+  try {
+    const users = await User.findAll({ attributes: ["id", "ph_amount", "mobile"] });
+
+    for (const user of users) {
+      try {
+        await user.syncPhAmount();
+        await user.syncRhAmount();
+        await user.syncPinCount();
+        await user.syncDirectHelpProvidedCount();
+        // console.log(`✅ Synced userId=${user.id}`);
+      } catch (err) {
+        console.error(`❌ Failed for userId=${user.id}`, err);
+      }
+    }
+
+    // console.log("✅ Cron Job Completed: All users synced.");
+  } catch (error) {
+    console.error("🚨 Cron Job Error:", error);
+  }
+});
 
 // error handler
 app.use(function (err, req, res, next) {

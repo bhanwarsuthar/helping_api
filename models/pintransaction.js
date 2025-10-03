@@ -34,34 +34,47 @@ module.exports = (sequelize, DataTypes) => {
 
   PinTransaction.beforeUpdate(async (pt) => {
     if (pt.changed("status") && pt.status === "success") {
-      const phUser = await sequelize.models.User.findOne({
-        where: { id: pt.provide_user_id },
-        include: {
-          model: sequelize.models.AcLedger,
-          as: "ac_ledgers",
-          where: { slug: "cash-wallet" },
-        },
-      });
-      if (phUser) {
-        if (+phUser?.is_help_provided == 0) {
-          await phUser.update({ is_help_provided: 1 });
+      try {
+        const phUser = await sequelize.models.User.findOne({
+          where: { id: pt.provide_user_id },
+          include: {
+            model: sequelize.models.AcLedger,
+            as: "ac_ledgers",
+            where: { slug: "cash-wallet" },
+            required: false, // ✅ allow user even if ledger missing
+          },
+        });
+
+        if (phUser) {
+          if (+phUser.is_help_provided === 0) {
+            phUser.set({ is_help_provided: 1 });
+            await phUser.save();
+          }
+          await phUser.syncPhAmount();
+
+          if (phUser.sponsor) {
+            const sponsor = await sequelize.models.User.findOne({
+              where: { mobile: phUser.sponsor },
+            });
+            if (sponsor) {
+              await sponsor.increment("direct_help_provided_user_count");
+            }
+          }
         }
-        await phUser.syncPhAmount();
-        if (phUser.sponsor) {
-          const sponsor = await sequelize.models.User.findOne({
-            where: { mobile: phUser.sponsor },
-          });
-          await sponsor.increment("direct_help_provided_user_count");
+
+        const rhUser = await sequelize.models.User.findOne({
+          where: { id: pt.receive_user_id },
+        });
+        if (rhUser) {
+          await rhUser.syncRhAmount();
         }
-      }
-      const rhUser = await sequelize.models.User.findOne({
-        where: { id: pt.receive_user_id },
-      });
-      if (rhUser) {
-        await rhUser.syncRhAmount();
+      } catch (err) {
+        console.error("beforeUpdate PinTransaction hook failed:", err);
+        // decide if you want to throw or just log
       }
     }
   });
+
 
   return PinTransaction;
 };
