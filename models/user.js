@@ -122,7 +122,7 @@ module.exports = (sequelize, DataTypes) => {
       // Step 2: calculate direct help provided count
       const query = `
     SELECT 
-      COALESCE(COUNT(DISTINCT pt.provide_user_id), 0) AS directCount,
+      COALESCE(COUNT(pt.provide_user_id), 0) AS directCount,
       COALESCE(SUM(CASE WHEN pt.include_flag = 1 THEN 10 ELSE 0 END), 0) AS reduceCount
     FROM users u
     INNER JOIN pin_transactions pt ON u.id = pt.provide_user_id
