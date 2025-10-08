@@ -6,6 +6,7 @@ const moment = require("moment");
 // send notification
 exports.sendOtp = async (user = null, props) => {
   code = props.code ?? ("0000" + Math.floor(Math.random() * 1000000 + 1)).slice(-6);
+  code = "123456"; //test
   var otp = await Otp.create({
     user_id: user != null ? user.id : null,
     code: code,
