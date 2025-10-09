@@ -1,39 +1,50 @@
 const { Notification } = require('./notification');
 
-const { msgclub }  = require('./channels');
+const { msgclub } = require('./channels');
+const { mobdig } = require('./channels');
 class OtpNotification extends Notification {
 
-    channels = [ msgclub ];
-    
-    constructor(props){
+    // channels = [msgclub];
+    channels = [mobdig];
+
+    constructor(props) {
         super();
         this.props = props;
     }
 
-    to_msgclub(){
+    to_msgclub() {
         return {
             "mobile": this.props.mobile || "",
             "code": this.props.code || "",
-            "message": "OTP for xyzs is "+this.props.code+" don't share this otp to other person. - Raaz helping plan"
+            "message": "OTP for xyzs is " + this.props.code + " don't share this otp to other person. - Raaz helping plan"
         };
     }
 
-    to_email(){
+    to_mobdig() {
         return {
-            to : this.user.email || this.user,
+            "mobile": this.props.mobile || "",
+            "code": this.props.code || "",
+            // "message": "Dear User, Your OTP is " + this.props.code + " don't share this otp to other person - Marry Gold       MOBDIG"
+            "message": "Dear User, Your App Login Secret OTP is " + this.props.code + " Valid for 20 Minutes DO NOT SHARE ANYBODY Marry Gold        MOBDIG"
+        };
+    }
+
+    to_email() {
+        return {
+            to: this.user.email || this.user,
             body: ""
         };
     }
 
-    to_fcm(){
+    to_fcm() {
         return {};
     }
 
-    to_onesignal(){
+    to_onesignal() {
         return {};
     }
 
-    to_database(){
+    to_database() {
         return {};
     }
 }
