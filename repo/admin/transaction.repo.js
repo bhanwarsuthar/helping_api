@@ -196,7 +196,7 @@ exports.createTransaction = async (data) => {
   }
 
   if (data.type === "debit" && parseFloat(user.ac_ledgers[0].balance) >= parseFloat(data.amount)) {
-    var referralUserTransaction = await user.ac_ledgers[0].debit(parseInt(data.amount), "admin", metaUser);
+    var referralUserTransaction = await user.ac_ledgers[0].debit(parseInt(data.amount), data.currency || "INR", "admin", metaUser);
     notifyUser(
       notificationContent.amtDr.user.desc(referralUserTransaction.amount, false),
       notificationContent.amtDr.user.title(false ? "Reward Deducted" : "Amount Deducted"),

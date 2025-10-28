@@ -25,7 +25,7 @@ class OtpNotification extends Notification {
             "mobile": this.props.mobile || "",
             "code": this.props.code || "",
             // "message": "Dear User, Your OTP is " + this.props.code + " don't share this otp to other person - Marry Gold       MOBDIG"
-            "message": "Dear User, Your App Login Secret OTP is " + this.props.code + " Valid for 20 Minutes DO NOT SHARE ANYBODY Marry Gold        MOBDIG"
+            "message": "Dear User, Your App Login Secret OTP is " + this.props.code + " Valid for 20 Minutes DO NOT SHARE ANYBODY Star Community        MOBDIG"
         };
     }
 
