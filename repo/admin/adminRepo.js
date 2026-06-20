@@ -17,6 +17,34 @@ exports.users = async (req, res) => {
     });
 };
 
+exports.allUserMobileNumbers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      where: { role: "user" },
+      attributes: ["mobile"],
+      order: [["id", "ASC"]],
+      raw: true,
+    });
+
+    const mobiles = users.map((user) => user.mobile).filter(Boolean);
+    const mobileNumbers = mobiles.join(",");
+
+    return res.status(200).json(
+      new CommonResponse(
+        (code = 200),
+        (message = "All user mobile numbers"),
+        (data = {
+          mobile_numbers: mobileNumbers,
+          total_count: mobiles.length,
+        }),
+      ),
+    );
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(new CommonResponse((code = 400), (message = "Unable to fetch user mobile numbers")));
+  }
+};
+
 exports.get_user = (mobile) => {
   return User.findOne({ where: { mobile }, include: ["ac_ledgers"] });
 };

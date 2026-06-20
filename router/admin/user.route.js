@@ -10,6 +10,8 @@ const router = express.Router();
 
 router.route("/users").get(adminRepo.users);
 
+router.get("/users/mobile-numbers", adminRepo.allUserMobileNumbers);
+
 router.route("/users/:mobile").get((req, res) => {
   return adminRepo.get_user(req.params.mobile).then((user) => {
     if (!user) {
@@ -44,17 +46,21 @@ router.put("/users/unblock", (req, res) => {
 router.route("/dashboard").get(adminRepo.adminDashboardData);
 
 router.post("/notity-users", async (req, res) => {
-  return sendNotificationUser({
+  const result = await sendNotificationUser({
     contents: {
       en: req.body.message,
     },
     headings: {
       en: req.body.heading || "Admin",
     },
-    included_segments: ["All"],
-  }).then(() => {
-    return res.json(new CommonResponse((code = 200), (message = "Notification sent to all users")));
+    included_segments: ["Subscribed Users"],
   });
+
+  if (!result) {
+    return res.json(new CommonResponse((code = 400), (message = "Failed to send notification")));
+  }
+
+  return res.json(new CommonResponse((code = 200), (message = "Notification sent to all users")));
 });
 
 module.exports = router;

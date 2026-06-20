@@ -1,22 +1,22 @@
 {
   "development": {
     "username": "root",
-    "password": "Bhanwar@123",
-    "database": "marry_gold",
+    "password": "A12345678",
+    "database": "p2p_help",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": "Bhanwar@123",
-    "database": "marry_gold_test",
+    "password": "A12345678",
+    "database": "p2p_help_test",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": "Bhanwar@123",
-    "database": "marry_gold_production",
+    "password": "A12345678",
+    "database": "p2p_help_production",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }

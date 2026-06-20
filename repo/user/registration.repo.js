@@ -146,7 +146,7 @@ exports.register_with_otp = async (req, res) => {
 
     const sponsor = await User.findOne({ where: { mobile: user.sponsor } });
 
-    await notifyUser(notificationContent.sponsor.user.desc(), notificationContent.sponsor.user.title(), sponsor.id, notificationContent.sponsor.user.data(sponsor.id));
+    notifyUser(notificationContent.sponsor.user.desc(), notificationContent.sponsor.user.title(), sponsor.id, notificationContent.sponsor.user.data(sponsor.id));
 
     var options = {
       subject: user.id.toString(),

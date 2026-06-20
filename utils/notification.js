@@ -1,78 +1,86 @@
-const OneSignal = require("onesignal-node");
+const axios = require("axios");
 const userRepo = require("../repo/user/user.repo");
 const { notificationData } = require("../constants");
 
-// Create a OneSignal client using the provided API credentials and options.
-const clientUser = new OneSignal.Client(process.env.ONESIGNAL_APP_ID_USER, process.env.ONESIGNAL_API_KEY_USER, { apiRoot: process.env.ONESIGNAL_API_BASE_URL });
-const clientAdmin = new OneSignal.Client(process.env.ONESIGNAL_APP_ID_ADMIN, process.env.ONESIGNAL_API_KEY_ADMIN, { apiRoot: process.env.ONESIGNAL_API_BASE_URL });
+async function sendOneSignalNotification(payload) {
+  const body = {
+    app_id: process.env.ONESIGNAL_APP_ID_USER,
+    target_channel: "push",
+    ...payload,
+  };
+
+  return axios.post(`${process.env.ONESIGNAL_API_BASE_URL}/notifications`, body, {
+    headers: {
+      Authorization: `Key ${process.env.ONESIGNAL_API_KEY_USER}`,
+      "Content-Type": "application/json",
+    },
+  });
+}
 
 /**
- * Sends a push notification using the OneSignal API.
+ * Sends a push notification using the OneSignal v2 API.
  *
  * @param {Object} payload - The payload containing notification details.
- * @returns {Promise<Object>} - A promise that resolves with the OneSignal API response.
+ * @returns {Promise<Object|null>} - OneSignal API response data, or null on failure.
  */
-
 exports.sendNotificationUser = async (payload) => {
   try {
-    // Create and send the notification using the OneSignal client.
-    const response = await clientUser.createNotification(payload);
-
-    // Return the OneSignal API response.
-    return response;
+    const response = await sendOneSignalNotification(payload);
+    return response.data;
   } catch (error) {
-    // Handle any errors that occur during the notification sending process.
-    console.error("Error sending notification:", error.message);
-    throw error;
+    console.error("Error sending notification:", error.response?.data ?? error.message);
+    return null;
   }
 };
 
-exports.sendNotificationAdmin = async (payload) => {
-  try {
-    // Create and send the notification using the OneSignal client.
-    const response = await clientUser.createNotification(payload);
+exports.sendNotificationAdmin = exports.sendNotificationUser;
 
-    // Return the OneSignal API response.
-    return response;
-  } catch (error) {
-    // Handle any errors that occur during the notification sending process.
-    console.error("Error sending notification:", error.message);
-    throw error;
-  }
+exports.notifyUser = (desc, title, id, data = {}) => {
+  void exports
+    .sendNotificationUser({
+      contents: { en: desc },
+      headings: {
+        en: title,
+      },
+      include_aliases: {
+        external_id: [`${id}`],
+      },
+      data,
+    })
+    .then((result) => {
+      if (result) {
+        console.log(`Notification send to user: ${id}`);
+      }
+    });
 };
 
-exports.notifyUser = async (desc, title, id, data = {}) => {
-  await this.sendNotificationUser({
-    contents: { en: desc },
-    headings: {
-      en: title,
-    },
-    include_aliases: {
-      external_id: [`${id}`],
-    },
-    data,
-    target_channel: "push",
-  });
+exports.notifyAdmin = (desc, title, data = {}) => {
+  void (async () => {
+    try {
+      const admin = await userRepo.profile({ role: "admin" });
+      if (!admin) {
+        console.error("Error sending notification: admin user not found");
+        return;
+      }
 
-  console.log(`Notification send to user: ${id}`);
-};
+      const result = await exports.sendNotificationUser({
+        contents: { en: desc },
+        headings: {
+          en: title,
+        },
+        include_aliases: {
+          external_id: [`${admin.id}`],
+        },
+        data,
+      });
 
-exports.notifyAdmin = async (desc, title, data = {}) => {
-  const admin = await userRepo.profile({ role: "admin" });
-
-  await this.sendNotificationUser({
-    contents: { en: desc },
-    headings: {
-      en: title,
-    },
-    include_aliases: {
-      external_id: [`${admin.id}`],
-    },
-    data,
-    target_channel: "push",
-  });
-
-  console.log(`Notification send to admin: ${admin.id}`);
+      if (result) {
+        console.log(`Notification send to admin: ${admin.id}`);
+      }
+    } catch (error) {
+      console.error("Error sending notification:", error.message);
+    }
+  })();
 };
 
 exports.notificationContent = {
@@ -167,13 +175,6 @@ exports.notificationContent = {
         return { activity: notificationData.noActivity, id: null };
       },
     },
-    // admin: {
-    //   title: (notation) => `${notation.replace(notation[0], notation[0].toUpperCase())} Request`,
-    //   desc: (userName, userPh, notation, amount) => `You have new ${notation} request of  ₹${amount} by ${userName} - ${userPh}`,
-    //   data: () => {
-    //     return { activity: notificationData.noActivity, id: null };
-    //   },
-    // },
   },
   commissionMissedNoPkg: {
     user: {
@@ -183,13 +184,6 @@ exports.notificationContent = {
         return { activity: notificationData.product, id: null };
       },
     },
-    // admin: {
-    //   title: (notation) => `${notation.replace(notation[0], notation[0].toUpperCase())} Request`,
-    //   desc: (userName, userPh, notation, amount) => `You have new ${notation} request of  ₹${amount} by ${userName} - ${userPh}`,
-    //   data: () => {
-    //     return { activity: notificationData.noActivity, id: null };
-    //   },
-    // },
   },
   transfer: {
     user: {
@@ -199,13 +193,6 @@ exports.notificationContent = {
         return { activity: notificationData.transaction };
       },
     },
-    // admin: {
-    //   title: (notation) => `${notation.replace(notation[0], notation[0].toUpperCase())} Request`,
-    //   desc: (userName, userPh, notation, amount) => `You have new ${notation} request of  ₹${amount} by ${userName} - ${userPh}`,
-    //   data: (id) => {
-    //     return { activity: notificationData.user, id };
-    //   },
-    // },
   },
   amtCr: {
     user: {
@@ -247,12 +234,5 @@ exports.notificationContent = {
         return { activity: notificationData.sponsorBonus, id: null };
       },
     },
-    // admin: {
-    //   title: (notation) => `${notation.replace(notation[0], notation[0].toUpperCase())} Request`,
-    //   desc: (userName, userPh, notation, amount) => `You have new ${notation} request of  ₹${amount} by ${userName} - ${userPh}`,
-    //   data: (id) => {
-    //     return { activity: notificationData.user, id };
-    //   },
-    // },
   },
 };
