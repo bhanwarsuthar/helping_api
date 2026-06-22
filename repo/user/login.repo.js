@@ -61,19 +61,25 @@ exports.login_with_password = async (req, res) => {
 exports.has_mobile = async (req, res) => {
   User.findOne({ where: { mobile: req.body.mobile } })
     .then(async (user) => {
-      if (user?.isBlocked(user.status)) {
+      if (!user) {
+        return res.status(400).json({
+          message: "User not found",
+        });
+      }
+
+      if (user.isBlocked(user.status)) {
         return res.status(401).json({
           message: "User is blocked",
         });
       }
 
       res.status(200).json({
-        message: "Mobile number available.", data: { name: user.first_name },
+        message: "Mobile number available.",
+        data: { name: user.first_name },
       });
-
     })
     .catch((error) => {
-      res.status(400).json({ message: error });
+      res.status(400).json({ message: error?.message || "User not found" });
     });
 };
 

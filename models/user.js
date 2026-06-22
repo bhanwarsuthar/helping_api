@@ -36,13 +36,6 @@ module.exports = (sequelize, DataTypes) => {
       notification.send();
     }
 
-    async syncPinCount() {
-      const count = await sequelize.models.AcLedger.PinTransaction.count({
-        where: { provide_user_id: this.id, status: "completed" },
-      });
-      await this.update({ pin_count: count });
-    }
-
     async syncPendingPinCount() {
       const options = {
         replacements: { userId: this.id },
@@ -64,9 +57,9 @@ module.exports = (sequelize, DataTypes) => {
       };
 
       const [{ phAmount }] = await this.sequelize.query(
-        `SELECT COALESCE(SUM(p.provide_help_amount), 0) AS phAmount
+        `SELECT COALESCE(SUM(COALESCE(p.provide_help_amount, 0)), 0) AS phAmount
        FROM pin_transactions pt
-       INNER JOIN pins p ON p.id = pt.pin_id
+       LEFT JOIN pins p ON p.id = pt.pin_id
        WHERE pt.provide_user_id = :userId 
          AND pt.status = "success";`,
         options
@@ -167,6 +160,8 @@ module.exports = (sequelize, DataTypes) => {
       email_verified_at: { type: DataTypes.DATE },
       direct_user_count: { type: DataTypes.INTEGER, defaultValue: 0 },
       direct_help_provided_user_count: { type: DataTypes.INTEGER, defaultValue: 0 },// direct (Level 1) user who provided help
+      upi_address: { type: DataTypes.STRING, allowNull: true },
+      upi_qrcode: { type: DataTypes.STRING, allowNull: true },
     },
     {
       sequelize,

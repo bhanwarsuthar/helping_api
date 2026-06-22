@@ -1,5 +1,6 @@
 console.log("Hello World!!!");
 var path = require("path");
+const fs = require("fs");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -21,6 +22,9 @@ const { use } = require("passport");
 // defining the Express app
 const app = express();
 global.__basedir = __dirname;
+
+const uploadsDir = path.join(__dirname, "uploads");
+fs.mkdirSync(uploadsDir, { recursive: true });
 
 // adding morgan to log HTTP requests
 if (process.env.NODE_ENV == "development") {

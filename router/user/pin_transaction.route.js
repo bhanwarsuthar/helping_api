@@ -34,4 +34,26 @@ router.post("/received/payment", Auth, (req, res) => {
     });
 });
 
+router.post("/submit/payment", Auth, (req, res) => {
+  pintTransactionRepo
+    .submitPayment(req.body, req.user.id)
+    .then((pinTransaction) => {
+      res.json(new CommonResponse((code = 200), (message = "Payment submitted"), (data = pinTransaction)));
+    })
+    .catch((err) => {
+      res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
+
+router.post("/reject/payment", Auth, (req, res) => {
+  pintTransactionRepo
+    .rejectSubmittedPayment(req.body, req.user.id)
+    .then((pinTransaction) => {
+      res.json(new CommonResponse((code = 200), (message = "Payment marked as not received"), (data = pinTransaction)));
+    })
+    .catch((err) => {
+      res.status(400).json(new CommonResponse((code = 400), (message = err.message)));
+    });
+});
+
 module.exports = router;

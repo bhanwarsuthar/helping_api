@@ -52,7 +52,8 @@ router.post("/transaction/transfer", Auth, (req, res) => {
     })
     .catch((err) => {
       console.log("error", err);
-      return res.status(400).json(new CommonResponse((code = 400), (message = "amount transfer failed"), (data = {}), (error = err)));
+      const message = err?.message || "amount transfer failed";
+      return res.status(400).json(new CommonResponse((code = 400), (message = message), (data = {}), (error = {})));
     });
 });
 

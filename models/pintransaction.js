@@ -22,6 +22,9 @@ module.exports = (sequelize, DataTypes) => {
       status: DataTypes.STRING,
       currency: DataTypes.ENUM(['INR', 'USD']),
       include_flag: { type: DataTypes.INTEGER, defaultValue: 0 },
+      payment_submitted_at: { type: DataTypes.DATE, allowNull: true },
+      payment_ref_no: { type: DataTypes.STRING, allowNull: true },
+      payment_screenshot: { type: DataTypes.STRING, allowNull: true },
     },
     {
       sequelize,
@@ -51,6 +54,7 @@ module.exports = (sequelize, DataTypes) => {
             await phUser.save();
           }
           await phUser.syncPhAmount();
+          await phUser.syncPinCount();
 
           if (phUser.sponsor) {
             const sponsor = await sequelize.models.User.findOne({

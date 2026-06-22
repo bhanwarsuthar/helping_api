@@ -29,11 +29,11 @@ exports.userInsights = async (userId) => {
     where: { key: "REWARD_PH_TEAM_COUNT" },
   });
   const user = await User.findByPk(userId);
-  // users who have provided help to others
+  // users who have provided help to others (direct referrals with is_help_provided = 1)
   const haveProvidedHelpUsers = await User.findAll({
     where: { sponsor: user.mobile, is_help_provided: 1 },
   });
-  const [ph, rh, myCommission] = await Promise.all([
+  const [ph, rh, myCommission, teamBusiness] = await Promise.all([
     sequelize.query(
       `
     SELECT SUM(provide_help_amount) as total_amount, COUNT(*) as total_count
@@ -74,6 +74,25 @@ exports.userInsights = async (userId) => {
         replacements: { userId },
       }
     ),
+    sequelize.query(
+      `
+      SELECT
+        COUNT(pt.id) AS total_pin_count,
+        COALESCE(SUM(COALESCE(p.provide_help_amount, 0)), 0) AS total_ph_amount
+      FROM users u
+      INNER JOIN pin_transactions pt
+        ON pt.provide_user_id = u.id
+        AND pt.status = 'success'
+      LEFT JOIN pins p ON p.id = pt.pin_id
+      WHERE u.sponsor = :mobile
+        AND u.is_help_provided = 1
+      `,
+      {
+        type: sequelize.QueryTypes.SELECT,
+        plain: true,
+        replacements: { mobile: user.mobile },
+      }
+    ),
   ]);
   return {
     ph: {
@@ -88,16 +107,10 @@ exports.userInsights = async (userId) => {
       direct: user.direct_user_count,
       active: haveProvidedHelpUsers?.length,
     },
-    // team_business: haveProvidedHelpUsers.reduce((a, b) => a + b.ph_amount, 0),
+    // Team business: live totals from direct active referrals' successful PH links.
     team_business: {
-      total_pin_count: haveProvidedHelpUsers.reduce(
-        (a, b) => a + b.pin_count,
-        0
-      ),
-      total_ph_amount: haveProvidedHelpUsers.reduce(
-        (a, b) => a + b.ph_amount,
-        0
-      ),
+      total_pin_count: +teamBusiness?.total_pin_count || 0,
+      total_ph_amount: +teamBusiness?.total_ph_amount || 0,
     },
     commission: {
       total_rh_count: myCommission?.total,
@@ -227,15 +240,14 @@ exports.create_user = (params) => {
 };
 
 exports.update_user = (user, params) => {
-  console.log("user_id", user.id);
-  var user = User.findOne({ where: { id: user.id } });
-  console.log("user", user);
-  return Promise.all([user]).then(([user]) => {
+  return User.findOne({ where: { id: user.id } }).then((foundUser) => {
     return new Promise((resolve, reject) => {
-      if (!user) return reject("User not found.");
-      user.first_name = params.first_name;
-      user.email = params.email;
-      user
+      if (!foundUser) return reject("User not found.");
+      if (params.first_name !== undefined) foundUser.first_name = params.first_name;
+      if (params.email !== undefined) foundUser.email = params.email;
+      if (params.upi_address !== undefined) foundUser.upi_address = params.upi_address;
+      if (params.upi_qrcode !== undefined) foundUser.upi_qrcode = params.upi_qrcode;
+      foundUser
         .save()
         .then((updatedUser) => {
           resolve(updatedUser);
@@ -245,6 +257,17 @@ exports.update_user = (user, params) => {
         });
     });
   });
+};
+
+exports.update_user_upi = async (userId, params) => {
+  const foundUser = await User.findByPk(userId);
+  if (!foundUser) {
+    throw new ResMessageError("User not found!");
+  }
+  if (params.upi_address !== undefined) foundUser.upi_address = params.upi_address;
+  if (params.upi_qrcode !== undefined) foundUser.upi_qrcode = params.upi_qrcode;
+  await foundUser.save();
+  return foundUser;
 };
 
 exports.getAddresses = (user) => {

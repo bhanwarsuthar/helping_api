@@ -3,6 +3,8 @@ private.key
 public.key
 /node_modules
 src/uploads/*
+!src/uploads/.gitkeep
 uploads/*
+!uploads/.gitkeep
 .vscode/
 playground

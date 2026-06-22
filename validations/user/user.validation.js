@@ -34,7 +34,15 @@ const schemas = {
 
   update_user: (input) => Joi.object().keys({
     first_name: Joi.string(),
-    email: Joi.string()
+    email: Joi.string(),
+    upi_address: Joi.string().allow("", null),
+    upi_qrcode: Joi.string().allow("", null),
+  }).validate(input),
+
+  update_user_upi: (input) => Joi.object().keys({
+    user_id: Joi.number().required(),
+    upi_address: Joi.string().allow("", null),
+    upi_qrcode: Joi.string().allow("", null),
   }).validate(input)
 }; 
 module.exports = schemas;

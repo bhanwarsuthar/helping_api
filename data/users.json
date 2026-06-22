@@ -16,9 +16,16 @@
     "country": null,
     "geo_location": null,
     "is_profile_completed": 0,
+    "is_help_provided": 0,
     "direct_user_count": 1,
+    "direct_help_provided_user_count": 0,
+    "pin_count": 0,
+    "ph_amount": 0,
+    "rh_amount": 0,
+    "upi_address": null,
+    "upi_qrcode": null,
     "created_at": "2023-06-30 16:48:42",
-    "updated_at": "2023-10-27 04:57:01",
+    "updated_at": "2025-06-19 00:00:00",
     "status": "active"
   },
   {
@@ -38,9 +45,16 @@
     "country": null,
     "geo_location": null,
     "is_profile_completed": 0,
+    "is_help_provided": 0,
     "direct_user_count": 0,
+    "direct_help_provided_user_count": 0,
+    "pin_count": 0,
+    "ph_amount": 0,
+    "rh_amount": 0,
+    "upi_address": "veer@paytm",
+    "upi_qrcode": "",
     "created_at": "2023-06-30 16:48:42",
-    "updated_at": "2023-10-27 04:57:01",
+    "updated_at": "2025-06-19 00:00:00",
     "status": "active"
   }
 ]
