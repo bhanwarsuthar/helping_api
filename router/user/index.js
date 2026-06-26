@@ -7,9 +7,10 @@ const pinTransactionRoute = require("./pin_transaction.route");
 const pinRoute = require("./pin.route");
 const helpRoute = require("./help.route");
 const commonDataRoute = require("./common_data.route");
+const supportRoute = require("./support.route");
 const uploadRoute = require("./../upload.route");
 
-router.use(userRoute, authRoute, transactionRoute, pinTransactionRoute, helpRoute, uploadRoute);
+router.use(userRoute, authRoute, transactionRoute, pinTransactionRoute, helpRoute, uploadRoute, supportRoute);
 router.use(pinRoute, commonDataRoute);
 
 module.exports = router;
