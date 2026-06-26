@@ -1,4 +1,5 @@
 const { Transactions, sequelize, User, AcLedger } = require("../../models");
+const { notifyUser, notificationContent } = require("../../utils/notification");
 
 exports.transactions = (user, query) => {
   let filters = {};
@@ -119,6 +120,12 @@ exports.createTransactionTransfer = async (data) => {
       return new Promise(async (resolve, reject) => {
         if (!receiverUserTransaction) return reject("Unable to update cash wallet");
         if (!senderUserTransaction) return reject("Unable to update cash wallet");
+        notifyUser(
+          notificationContent.transfer.user.desc(data.body.amount, data.body.userName, data.body.userPh),
+          notificationContent.transfer.user.title(),
+          receiverUser.id,
+          notificationContent.transfer.user.data(),
+        );
         resolve(senderUserTransaction);
       });
     })

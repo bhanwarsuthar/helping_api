@@ -9,15 +9,15 @@ function getOneSignalConfig() {
 
   // Legacy env files used the v1 host; this project sends v2 payloads (Key auth, include_aliases).
   if (baseUrl.includes("onesignal.com/api/v1")) {
-    baseUrl = "https://api.onesignal.com";
+    baseUrl = "https://onesignal.com/api/v1";
   }
 
   return { appId, apiKey, baseUrl };
 }
 
-function assertOneSignalConfig(config) {
-  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+function assertOneSignalConfig(config) {
   if (!uuidPattern.test(config.appId)) {
     throw new Error(
       `Invalid ONESIGNAL_APP_ID_USER "${config.appId}". Expected a UUID like 81457ae9-65fb-4dbb-99bc-bf7ff6571004 with no spaces.`,
@@ -29,9 +29,75 @@ function assertOneSignalConfig(config) {
   }
 }
 
+function isSubscriptionId(value) {
+  return uuidPattern.test(String(value));
+}
+
+exports.normalizeUserIds = (userId) => {
+  if (userId == null || userId === "") {
+    return [];
+  }
+
+  if (Array.isArray(userId)) {
+    return userId.map(String).map((id) => id.trim()).filter(Boolean);
+  }
+
+  if (typeof userId === "string") {
+    if (userId.includes(",")) {
+      return userId
+        .split(",")
+        .map((id) => id.trim())
+        .filter(Boolean);
+    }
+    return [userId.trim()].filter(Boolean);
+  }
+
+  return [String(userId)];
+};
+
+exports.resolveSubscriptionIds = async (userIds) => {
+  const config = getOneSignalConfig();
+  assertOneSignalConfig(config);
+
+  const subscriptionIds = [];
+
+  for (const userId of userIds) {
+    if (isSubscriptionId(userId)) {
+      subscriptionIds.push(userId);
+      continue;
+    }
+
+    try {
+      const response = await axios.get(
+        `${config.baseUrl}/apps/${config.appId}/users/by/external_id/${encodeURIComponent(userId)}`,
+        {
+          headers: {
+            Authorization: `Key ${config.apiKey}`,
+          },
+        },
+      );
+
+      const subscriptions = response.data?.subscriptions ?? [];
+      for (const subscription of subscriptions) {
+        if (subscription?.id && subscription.enabled !== false) {
+          subscriptionIds.push(subscription.id);
+        }
+      }
+    } catch (error) {
+      console.warn(
+        `No OneSignal subscriptions for user ${userId}:`,
+        error.response?.data ?? error.message,
+      );
+    }
+  }
+
+  return [...new Set(subscriptionIds)];
+};
+
 async function sendOneSignalNotification(payload) {
   const config = getOneSignalConfig();
   assertOneSignalConfig(config);
+
 
   const body = {
     app_id: config.appId,
@@ -39,6 +105,7 @@ async function sendOneSignalNotification(payload) {
     ...payload,
   };
 
+  console.log("Sending OneSignal notification with payload:", body);
   return axios.post(`${config.baseUrl}/notifications`, body, {
     headers: {
       Authorization: `Key ${config.apiKey}`,
@@ -56,7 +123,17 @@ async function sendOneSignalNotification(payload) {
 exports.sendNotificationUser = async (payload) => {
   try {
     const response = await sendOneSignalNotification(payload);
-    console.log("Notification sent successfully:", response.data);
+    const { id, errors } = response.data ?? {};
+    if (errors?.length) {
+      console.warn("OneSignal notification not delivered:", {
+        id,
+        errors,
+        external_id: payload.include_aliases?.external_id,
+        include_subscription_ids: payload.include_subscription_ids,
+      });
+    } else {
+      console.log("Notification sent successfully:", response.data);
+    }
     return response.data;
   } catch (error) {
     console.error("Error sending notification:", error.response?.data ?? error.message);
