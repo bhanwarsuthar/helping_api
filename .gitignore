@@ -1,4 +1,5 @@
 .env
+.env copy
 private.key
 public.key
 /node_modules
