@@ -2,23 +2,53 @@ const axios = require("axios");
 const userRepo = require("../repo/user/user.repo");
 const { notificationData } = require("../constants");
 
+function getOneSignalConfig() {
+  const appId = (process.env.ONESIGNAL_APP_ID_USER || process.env.APP_ID || "").trim();
+  const apiKey = (process.env.ONESIGNAL_API_KEY_USER || process.env.API_KEY || "").trim();
+  let baseUrl = (process.env.ONESIGNAL_API_BASE_URL || "https://api.onesignal.com").trim().replace(/\/$/, "");
+
+  // Legacy env files used the v1 host; this project sends v2 payloads (Key auth, include_aliases).
+  if (baseUrl.includes("onesignal.com/api/v1")) {
+    baseUrl = "https://api.onesignal.com";
+  }
+
+  return { appId, apiKey, baseUrl };
+}
+
+function assertOneSignalConfig(config) {
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (!uuidPattern.test(config.appId)) {
+    throw new Error(
+      `Invalid ONESIGNAL_APP_ID_USER "${config.appId}". Expected a UUID like 81457ae9-65fb-4dbb-99bc-bf7ff6571004 with no spaces.`,
+    );
+  }
+
+  if (!config.apiKey) {
+    throw new Error("Missing ONESIGNAL_API_KEY_USER.");
+  }
+}
+
 async function sendOneSignalNotification(payload) {
+  const config = getOneSignalConfig();
+  assertOneSignalConfig(config);
+
   const body = {
-    app_id: process.env.ONESIGNAL_APP_ID_USER,
+    app_id: config.appId,
     target_channel: "push",
     ...payload,
   };
 
-  return axios.post(`${process.env.ONESIGNAL_API_BASE_URL}/notifications`, body, {
+  return axios.post(`${config.baseUrl}/notifications`, body, {
     headers: {
-      Authorization: `Key ${process.env.ONESIGNAL_API_KEY_USER}`,
+      Authorization: `Key ${config.apiKey}`,
       "Content-Type": "application/json",
     },
   });
 }
 
 /**
- * Sends a push notification using the OneSignal v2 API.
+ * Sends a push notification using the OneSignal REST API.
  *
  * @param {Object} payload - The payload containing notification details.
  * @returns {Promise<Object|null>} - OneSignal API response data, or null on failure.
@@ -26,6 +56,7 @@ async function sendOneSignalNotification(payload) {
 exports.sendNotificationUser = async (payload) => {
   try {
     const response = await sendOneSignalNotification(payload);
+    console.log("Notification sent successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error sending notification:", error.response?.data ?? error.message);
