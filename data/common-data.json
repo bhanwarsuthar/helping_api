@@ -126,6 +126,34 @@
     "updated_at": "2023-10-27 04:57:01"
   },
   {
+    "id": 41,
+    "key": "TELEGRAM",
+    "data": "https://t.me/your-channel",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2025-06-19 00:00:00"
+  },
+  {
+    "id": 42,
+    "key": "MEETING",
+    "data": "https://zoom.us/j/your-meeting-id",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2025-06-19 00:00:00"
+  },
+  {
+    "id": 43,
+    "key": "MEETING_INFO",
+    "data": "Zoom meeting everyday at 6:00 PM",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2025-06-19 00:00:00"
+  },
+  {
+    "id": 44,
+    "key": "SUPPORT",
+    "data": "https://t.me/your-support",
+    "created_at": "2023-06-30 16:48:42",
+    "updated_at": "2025-06-19 00:00:00"
+  },
+  {
     "id": 40,
     "key": "REWARD_PH_TEAM_COUNT",
     "data": "10",
