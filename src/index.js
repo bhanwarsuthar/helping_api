@@ -78,7 +78,11 @@ app.get("/", (req, res) => {
 cron.schedule(
   "0 16 * * *",
   async () => {
-    await rewardPHTeam();
+    try {
+      await rewardPHTeam();
+    } catch (error) {
+      console.error("rewardPHTeam cron failed:", error);
+    }
   },
   {
     scheduled: true,

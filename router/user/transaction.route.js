@@ -3,7 +3,7 @@ const router = express.Router();
 const transactionRepo = require("../../repo/user/transaction.repo");
 const { CommonResponse } = require("../../response/successResponse");
 const { Auth } = require("../../middleware/jwt_auth");
-const { notifyAdmin, notificationContent } = require("../../utils/notification");
+const { notifyAdminPaymentRequest, notificationContent } = require("../../utils/notification");
 
 router.get("/transactions", Auth, (req, res) => {
   transactionRepo
@@ -22,10 +22,10 @@ router.post("/transaction", Auth, (req, res) => {
     .createTransaction(req)
     .then((transaction) => {
       const full_name = `${req.user.first_name}`;
-      notifyAdmin(
-        notificationContent.transactionReject.admin.desc(full_name, req.user.mobile, "deposit", req.body.amount),
-        notificationContent.transactionReject.admin.title("deposit"),
-        notificationContent.transactionReject.admin.data(req.user.id)
+      notifyAdminPaymentRequest(
+        notificationContent.transactionReq.admin.desc(full_name, req.user.mobile, "deposit", req.body.amount),
+        notificationContent.transactionReq.admin.title("deposit"),
+        notificationContent.transactionReq.admin.data(req.user.id),
       );
       return res.json(new CommonResponse((code = 200), (message = "transaction created"), (data = transaction), (error = {})));
     })

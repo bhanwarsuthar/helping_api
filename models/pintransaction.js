@@ -61,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
               where: { mobile: phUser.sponsor },
             });
             if (sponsor) {
-              await sponsor.increment("direct_help_provided_user_count");
+              await sponsor.syncDirectHelpProvidedCount();
             }
           }
         }

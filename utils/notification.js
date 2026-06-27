@@ -1,6 +1,6 @@
 const axios = require("axios");
 const userRepo = require("../repo/user/user.repo");
-const { notificationData } = require("../constants");
+const { notificationData, androidNotificationChannels } = require("../constants");
 
 function getOneSignalConfig() {
   const appId = (process.env.ONESIGNAL_APP_ID_USER || process.env.APP_ID || "").trim();
@@ -98,7 +98,6 @@ async function sendOneSignalNotification(payload) {
   const config = getOneSignalConfig();
   assertOneSignalConfig(config);
 
-
   const body = {
     app_id: config.appId,
     target_channel: "push",
@@ -114,6 +113,33 @@ async function sendOneSignalNotification(payload) {
   });
 }
 
+exports.sendPushToUserIds = async (userIds, payload) => {
+  const normalizedIds = exports.normalizeUserIds(userIds);
+  if (!normalizedIds.length) {
+    console.warn("No user ids provided for push notification");
+    return { ok: false, reason: "no_user_ids", userIds: [] };
+  }
+
+  const subscriptionIds = await exports.resolveSubscriptionIds(normalizedIds);
+  if (!subscriptionIds.length) {
+    console.warn("No OneSignal subscriptions resolved for user ids:", normalizedIds);
+    return { ok: false, reason: "no_subscriptions", userIds: normalizedIds };
+  }
+
+  console.log(`Resolved ${subscriptionIds.length} OneSignal subscription(s) for user ids:`, normalizedIds);
+
+  const result = await exports.sendNotificationUser({
+    ...payload,
+    include_subscription_ids: subscriptionIds,
+  });
+
+  if (result?.id) {
+    return { ok: true, result, userIds: normalizedIds, subscriptionIds };
+  }
+
+  return { ok: false, reason: "api_error", result, userIds: normalizedIds, subscriptionIds };
+};
+
 /**
  * Sends a push notification using the OneSignal REST API.
  *
@@ -128,15 +154,20 @@ exports.sendNotificationUser = async (payload) => {
       console.warn("OneSignal notification not delivered:", {
         id,
         errors,
-        external_id: payload.include_aliases?.external_id,
         include_subscription_ids: payload.include_subscription_ids,
+        existing_android_channel_id: payload.existing_android_channel_id,
       });
-    } else {
-      console.log("Notification sent successfully:", response.data);
+      return response.data;
     }
+    if (!id) {
+      console.warn("OneSignal notification created without id:", response.data);
+      return response.data;
+    }
+    console.log("Notification sent successfully:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error sending notification:", error.response?.data ?? error.message);
+    const errorBody = error.response?.data ?? error.message;
+    console.error("OneSignal API error sending notification:", errorBody);
     return null;
   }
 };
@@ -145,24 +176,41 @@ exports.sendNotificationAdmin = exports.sendNotificationUser;
 
 exports.notifyUser = (desc, title, id, data = {}) => {
   void exports
-    .sendNotificationUser({
+    .sendPushToUserIds([id], {
       contents: { en: desc },
       headings: {
         en: title,
       },
-      include_aliases: {
-        external_id: [`${id}`],
-      },
       data,
     })
-    .then((result) => {
-      if (result) {
+    .then((sendResult) => {
+      if (sendResult?.ok) {
         console.log(`Notification send to user: ${id}`);
       }
     });
 };
 
-exports.notifyAdmin = (desc, title, data = {}) => {
+function buildAdminPayload(desc, title, data, subscriptionIds, options = {}) {
+  const payload = {
+    contents: { en: desc },
+    headings: {
+      en: title,
+    },
+    data,
+    include_subscription_ids: subscriptionIds,
+  };
+
+  if (options.existingAndroidChannelId) {
+    payload.existing_android_channel_id = options.existingAndroidChannelId;
+  }
+  if (options.priority != null) {
+    payload.priority = options.priority;
+  }
+
+  return payload;
+}
+
+exports.notifyAdmin = (desc, title, data = {}, options = {}) => {
   void (async () => {
     try {
       const admin = await userRepo.profile({ role: "admin" });
@@ -171,24 +219,46 @@ exports.notifyAdmin = (desc, title, data = {}) => {
         return;
       }
 
-      const result = await exports.sendNotificationUser({
-        contents: { en: desc },
-        headings: {
-          en: title,
-        },
-        include_aliases: {
-          external_id: [`${admin.id}`],
-        },
-        data,
-      });
+      const subscriptionIds = await exports.resolveSubscriptionIds([admin.id]);
+      if (!subscriptionIds.length) {
+        console.warn(`No OneSignal subscriptions resolved for admin id=${admin.id}`);
+        return;
+      }
 
-      if (result) {
-        console.log(`Notification send to admin: ${admin.id}`);
+      console.log(`Sending admin notification to user id ${admin.id}`);
+      console.log(`Resolved ${subscriptionIds.length} OneSignal subscription(s) for user ids:`, [String(admin.id)]);
+
+      let result = await exports.sendNotificationUser(
+        buildAdminPayload(desc, title, data, subscriptionIds, options),
+      );
+
+      if (!result?.id && options.existingAndroidChannelId) {
+        console.warn(
+          `Admin notification failed with existing_android_channel_id=${options.existingAndroidChannelId}, retrying without channel fields`,
+        );
+        result = await exports.sendNotificationUser(
+          buildAdminPayload(desc, title, data, subscriptionIds, {
+            priority: options.priority,
+          }),
+        );
+      }
+
+      if (result?.id) {
+        console.log(`Notification send to admin: ${admin.id}`, result);
+      } else {
+        console.warn(`Admin notification API send failed for admin id=${admin.id}`, result);
       }
     } catch (error) {
       console.error("Error sending notification:", error.message);
     }
   })();
+};
+
+exports.notifyAdminPaymentRequest = (desc, title, data = {}) => {
+  exports.notifyAdmin(desc, title, data, {
+    existingAndroidChannelId: androidNotificationChannels.paymentRequest,
+    priority: 10,
+  });
 };
 
 exports.notificationContent = {
@@ -224,6 +294,15 @@ exports.notificationContent = {
       desc: (userName, userPh, notation, amount) => `You have new ${notation} request of ₹${amount} by ${userName} - ${userPh}`,
       data: (id) => {
         return { activity: notificationData.user, id };
+      },
+    },
+  },
+  paymentSubmitted: {
+    admin: {
+      title: () => "Payment Request",
+      desc: (userName, userPh) => `${userName} - ${userPh} submitted payment proof for review`,
+      data: (id) => {
+        return { activity: notificationData.payment, id };
       },
     },
   },

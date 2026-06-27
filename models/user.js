@@ -103,20 +103,18 @@ module.exports = (sequelize, DataTypes) => {
     }
 
     async syncDirectHelpProvidedCount() {
-      const options = {
-        replacements: { userId: this.id },
-        type: Sequelize.QueryTypes.SELECT,
-      };
-
-      // Step 1: get current user's mobile
       const user = await this.sequelize.models.User.findByPk(this.id);
       if (!user) return;
 
-      // Step 2: calculate direct help provided count
+      const rewardPhTeamCount = await this.sequelize.models.CommonData.findOne({
+        where: { key: "REWARD_PH_TEAM_COUNT" },
+      });
+      const rewardThreshold = parseInt(rewardPhTeamCount?.data, 10) || 10;
+
       const query = `
     SELECT 
       COALESCE(COUNT(pt.provide_user_id), 0) AS directCount,
-      COALESCE(SUM(CASE WHEN pt.include_flag = 1 THEN 10 ELSE 0 END), 0) AS reduceCount
+      COALESCE(SUM(CASE WHEN pt.include_flag = 1 THEN :rewardThreshold ELSE 0 END), 0) AS reduceCount
     FROM users u
     INNER JOIN pin_transactions pt ON u.id = pt.provide_user_id
     WHERE u.sponsor = :mobile
@@ -124,11 +122,11 @@ module.exports = (sequelize, DataTypes) => {
   `;
 
       const [{ directCount, reduceCount }] = await this.sequelize.query(query, {
-        ...options,
-        replacements: { mobile: user.mobile },
+        replacements: { mobile: user.mobile, rewardThreshold },
+        type: Sequelize.QueryTypes.SELECT,
       });
 
-      const finalCount = Math.max(0, directCount - reduceCount);
+      const finalCount = Math.max(0, Number(directCount) - Number(reduceCount));
 
       await this.update({ direct_help_provided_user_count: finalCount });
     }

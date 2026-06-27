@@ -5,6 +5,7 @@ const { PinTransaction } = require("../../models");
 const { CommonResponse } = require("../../response/successResponse");
 const pintTransactionRepo = require("../../repo/user/pin_transaction.repo");
 const { Auth } = require("../../middleware/jwt_auth");
+const { notifyAdminPaymentRequest, notificationContent } = require("../../utils/notification");
 
 router.get("/pin/transactions", Auth, (req, res) => {
   pintTransactionRepo
@@ -38,6 +39,14 @@ router.post("/submit/payment", Auth, (req, res) => {
   pintTransactionRepo
     .submitPayment(req.body, req.user.id)
     .then((pinTransaction) => {
+      const provider = pinTransaction.provide;
+      const fullName = provider?.first_name || req.user.first_name || "User";
+      const mobile = provider?.mobile || req.user.mobile || "";
+      notifyAdminPaymentRequest(
+        notificationContent.paymentSubmitted.admin.desc(fullName, mobile),
+        notificationContent.paymentSubmitted.admin.title(),
+        notificationContent.paymentSubmitted.admin.data(provider?.id || req.user.id),
+      );
       res.json(new CommonResponse((code = 200), (message = "Payment submitted"), (data = pinTransaction)));
     })
     .catch((err) => {
