@@ -102,9 +102,6 @@ exports.submitPayment = async (body, userId) => {
   const paymentRefNo = (body.payment_ref_no || body.ref_no || "").trim();
   const paymentScreenshot = (body.payment_screenshot || "").trim();
 
-  if (!paymentRefNo) {
-    throw new ResMessageError("Payment transaction ID is required!");
-  }
   if (!paymentScreenshot) {
     throw new ResMessageError("Payment screenshot is required!");
   }
@@ -123,7 +120,7 @@ exports.submitPayment = async (body, userId) => {
     throw new ResMessageError("Payment already submitted!");
   }
 
-  pinTransaction.payment_ref_no = paymentRefNo;
+  pinTransaction.payment_ref_no = paymentRefNo || null;
   pinTransaction.payment_screenshot = paymentScreenshot;
   pinTransaction.payment_submitted_at = new Date();
   await pinTransaction.save();
