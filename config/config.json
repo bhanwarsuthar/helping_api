@@ -2,21 +2,21 @@
   "development": {
     "username": "root",
     "password": "A12345678",
-    "database": "p2p_help",
+    "database": "global_help",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
     "password": "A12345678",
-    "database": "p2p_help_test",
+    "database": "global_help_test",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
     "password": "A12345678",
-    "database": "p2p_help_production",
+    "database": "global_help_production",
     "host": "127.0.0.1",
     "dialect": "mysql"
   }

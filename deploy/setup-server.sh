@@ -3,8 +3,8 @@
 set -euo pipefail
 
 APP_DIR="/var/www/helping_api"
-DB_NAME="p2p_help"
-DB_USER="p2phelp"
+DB_NAME="global_help"
+DB_USER="globalhelp"
 DB_PASS="${DB_PASS:?Set DB_PASS env var}"
 
 export DEBIAN_FRONTEND=noninteractive
